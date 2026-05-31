@@ -1,0 +1,10 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/tsldb}
+
+logging:
+  level:
+    com.tsl: DEBUG
+    org.springframework.web: INFO
+    org.springframework.data.mongodb: INFO
