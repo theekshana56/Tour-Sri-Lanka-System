@@ -22,6 +22,7 @@ export default function ProtectedLayout({
   const isCustomerDashboard = pathname.startsWith("/dashboard");
   const isAdminDashboard = pathname.startsWith("/admin");
   const isManagerDashboard = pathname.startsWith("/manager");
+  const isFinanceDashboard = pathname.startsWith("/finance");
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -59,6 +60,10 @@ export default function ProtectedLayout({
 
   if (isManagerDashboard) {
     return <DashboardLayout variant="manager">{children}</DashboardLayout>;
+  }
+
+  if (isFinanceDashboard) {
+    return <DashboardLayout variant="finance">{children}</DashboardLayout>;
   }
 
   if (isCustomerDashboard) {

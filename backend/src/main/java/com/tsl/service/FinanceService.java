@@ -14,14 +14,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.tsl.dto.response.FinanceBookingResponse;
 import com.tsl.dto.response.RevenueSummaryResponse;
 import com.tsl.model.Booking;
 import com.tsl.model.BookingStatus;
+import com.tsl.model.VehicleType;
 import com.tsl.repository.BookingRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -61,9 +65,68 @@ public class FinanceService {
                 .build();
     }
 
-    public Page<FinanceBookingResponse> getBookings(BookingStatus status, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return bookingRepository.findByStatus(status, pageable).map(FinanceBookingResponse::from);
+    public Page<FinanceBookingResponse> getBookings(
+            BookingStatus status,
+            String vehicleType,
+            String currency,
+            LocalDate from,
+            LocalDate to,
+            int page,
+            int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Booking> bookings = resolveBookingsPage(status, from, to, pageable);
+
+        List<FinanceBookingResponse> content = bookings.getContent().stream()
+                .filter(booking -> matchesVehicleType(booking, vehicleType))
+                .filter(booking -> matchesCurrency(booking, currency))
+                .map(FinanceBookingResponse::from)
+                .toList();
+
+        return new PageImpl<>(content, pageable, bookings.getTotalElements());
+    }
+
+    private Page<Booking> resolveBookingsPage(
+            BookingStatus status,
+            LocalDate from,
+            LocalDate to,
+            Pageable pageable) {
+        if (from != null && to != null) {
+            LocalDateTime fromDateTime = from.atStartOfDay();
+            LocalDateTime toDateTime = to.atTime(23, 59, 59);
+            if (status != null) {
+                return bookingRepository.findByStatusInAndCreatedAtBetween(
+                        List.of(status),
+                        fromDateTime,
+                        toDateTime,
+                        pageable);
+            }
+            return bookingRepository.findByCreatedAtBetween(fromDateTime, toDateTime, pageable);
+        }
+        if (status != null) {
+            return bookingRepository.findByStatus(status, pageable);
+        }
+        return bookingRepository.findAll(pageable);
+    }
+
+    private boolean matchesVehicleType(Booking booking, String vehicleType) {
+        if (!StringUtils.hasText(vehicleType)) {
+            return true;
+        }
+        try {
+            VehicleType type = VehicleType.valueOf(vehicleType.trim().toUpperCase());
+            return booking.getVehicleType() == type;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    private boolean matchesCurrency(Booking booking, String currency) {
+        if (!StringUtils.hasText(currency)) {
+            return true;
+        }
+        return booking.getPreferredCurrency() != null
+                && booking.getPreferredCurrency().equalsIgnoreCase(currency.trim());
     }
 
     private List<RevenueSummaryResponse.MonthlyRevenueResponse> buildMonthlyRevenue(List<Booking> bookings) {

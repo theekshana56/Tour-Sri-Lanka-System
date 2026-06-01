@@ -64,4 +64,12 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
             String reviewedByUserId,
             Collection<BookingStatus> statuses,
             Pageable pageable);
+
+    Page<Booking> findByStatusInAndCreatedAtBetween(
+            Collection<BookingStatus> statuses,
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable);
+
+    Page<Booking> findByCreatedAtBetween(LocalDateTime from, LocalDateTime to, Pageable pageable);
 }

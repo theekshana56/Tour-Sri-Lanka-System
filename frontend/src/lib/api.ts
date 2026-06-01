@@ -4,6 +4,10 @@ import type {
   AdminCreateUserPayload,
   AdminDashboardData,
   ManagerDashboardData,
+  RevenueSummary,
+  PricingRule,
+  ExchangeRates,
+  FinanceBooking,
   AuthResponse,
   AvailabilityCalendarMap,
   BookingCreateResponse,
@@ -251,8 +255,23 @@ export const driverApi = {
 };
 
 export const financeApi = {
-  getPricingRules: () => api.get("/finance/pricing-rules"),
-  getExchangeRates: () => api.get("/finance/exchange-rates"),
+  getRevenueSummary: (from: string, to: string) =>
+    api.get<RevenueSummary>("/finance/revenue-summary", { params: { from, to } }),
+  getPricingRules: () => api.get<PricingRule[]>("/finance/pricing-rules"),
+  updatePricingRule: (id: string, data: unknown) =>
+    api.put<PricingRule>(`/finance/pricing-rules/${id}`, data),
+  getExchangeRates: () => api.get<ExchangeRates>("/finance/exchange-rates"),
+  updateExchangeRates: (rates: Record<string, number>) =>
+    api.put<ExchangeRates>("/finance/exchange-rates", { rates }),
+  getBookings: (params?: {
+    status?: string;
+    vehicleType?: string;
+    currency?: string;
+    from?: string;
+    to?: string;
+    page?: number;
+    size?: number;
+  }) => api.get<PageResponse<FinanceBooking>>("/finance/bookings", { params }),
   getQuote: (params: Record<string, string | number>) =>
     pricingApi.quote(params),
 };

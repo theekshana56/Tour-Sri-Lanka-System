@@ -17,6 +17,7 @@ import { getDashboardForRole } from "@/lib/auth";
 import {
   ADMIN_NAV,
   CUSTOMER_NAV,
+  FINANCE_NAV,
   MANAGER_NAV,
   type DashboardNavItem,
 } from "@/lib/dashboard-config";
@@ -33,7 +34,7 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-type DashboardVariant = "customer" | "admin" | "manager";
+type DashboardVariant = "customer" | "admin" | "manager" | "finance";
 
 const VARIANT_CONFIG: Record<
   DashboardVariant,
@@ -53,6 +54,11 @@ const VARIANT_CONFIG: Record<
     nav: MANAGER_NAV,
     portalLabel: "Manager Portal",
     requiredRoles: ["ADMIN", "MANAGER"],
+  },
+  finance: {
+    nav: FINANCE_NAV,
+    portalLabel: "Finance Portal",
+    requiredRoles: ["FINANCE_MANAGER"],
   },
 };
 

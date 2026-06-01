@@ -71,9 +71,13 @@ public class FinanceController {
 
     @GetMapping("/bookings")
     public Page<FinanceBookingResponse> getBookings(
-            @RequestParam(defaultValue = "APPROVED") BookingStatus status,
+            @RequestParam(required = false) BookingStatus status,
+            @RequestParam(required = false) String vehicleType,
+            @RequestParam(required = false) String currency,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return financeService.getBookings(status, page, size);
+        return financeService.getBookings(status, vehicleType, currency, from, to, page, size);
     }
 }

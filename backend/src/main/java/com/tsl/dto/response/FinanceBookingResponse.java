@@ -33,6 +33,7 @@ public class FinanceBookingResponse {
     private BigDecimal totalPriceLKR;
     private BigDecimal totalPriceForeign;
     private String preferredCurrency;
+    private BigDecimal exchangeRateUsed;
     private LocalDateTime createdAt;
 
     public static FinanceBookingResponse from(Booking booking) {
@@ -52,6 +53,7 @@ public class FinanceBookingResponse {
                 .totalPriceLKR(booking.getTotalPriceLKR())
                 .totalPriceForeign(booking.getTotalPriceForeign())
                 .preferredCurrency(booking.getPreferredCurrency())
+                .exchangeRateUsed(booking.getExchangeRateUsed())
                 .createdAt(booking.getCreatedAt())
                 .build();
     }

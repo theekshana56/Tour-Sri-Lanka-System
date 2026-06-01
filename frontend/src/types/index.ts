@@ -158,6 +158,55 @@ export interface ManagerDashboardData {
   pendingQueue: AdminBooking[];
 }
 
+export interface RevenueSummary {
+  totalRevenueLKR: number;
+  totalBookings: number;
+  avgBookingValueLKR: number;
+  revenueByMonth: { month: string; revenue: number }[];
+  revenueByVehicleType: { type: string; revenue: number; count: number }[];
+  topRoutes: { from: string; to: string; count: number; revenue: number }[];
+}
+
+export interface PricingRule {
+  id: string;
+  vehicleType: VehicleType;
+  basePricePerDayLKR: number;
+  pricePerExtraPassengerLKR: number;
+  zoneMultipliers: { fromDistrict: string; toDistrict: string; multiplier: number }[];
+  seasonalMultiplier: number;
+  isActive: boolean;
+  lastUpdatedByUserId?: string;
+  updatedAt?: string;
+}
+
+export interface ExchangeRates {
+  id: string;
+  baseCurrency: string;
+  rates: Record<string, number>;
+  lastUpdated?: string;
+  updatedByUserId?: string;
+}
+
+export interface FinanceBooking {
+  id: string;
+  bookingNumber: string;
+  customerName: string;
+  customerEmail: string;
+  fromDistrict: string;
+  toDistrict: string;
+  startDate: string;
+  endDate: string;
+  numberOfDays: number;
+  passengerCount: number;
+  vehicleType: VehicleType;
+  status: BookingStatus;
+  totalPriceLKR: number;
+  totalPriceForeign: number;
+  preferredCurrency: string;
+  exchangeRateUsed?: number;
+  createdAt?: string;
+}
+
 export interface DriverAvailability {
   driverId: string;
   blockedDates: string[];

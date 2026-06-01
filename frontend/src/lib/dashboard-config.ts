@@ -2,10 +2,13 @@ import type { LucideIcon } from "lucide-react";
 import {
   Calendar,
   Car,
+  DollarSign,
+  FileBarChart,
   Home,
   History,
   ClipboardList,
   MapPin,
+  Percent,
   UserCog,
   Users,
 } from "lucide-react";
@@ -39,11 +42,19 @@ export const ADMIN_NAV: DashboardNavItem[] = [
 export const MANAGER_NAV: DashboardNavItem[] = [
   { href: "/manager/dashboard", label: "Overview", icon: Home },
   {
-    href: "/manager/dashboard",
+    href: "/manager/bookings",
     label: "Booking Queue",
     icon: ClipboardList,
     showPendingBadge: true,
   },
   { href: "/manager/bookings", label: "All Bookings", icon: Calendar },
   { href: "/manager/actions", label: "My Actions Log", icon: History },
+];
+
+export const FINANCE_NAV: DashboardNavItem[] = [
+  { href: "/finance/dashboard", label: "Overview", icon: Home },
+  { href: "/finance/pricing", label: "Pricing Rules", icon: Percent },
+  { href: "/finance/rates", label: "Exchange Rates", icon: DollarSign },
+  { href: "/finance/reports", label: "Revenue Reports", icon: FileBarChart },
+  { href: "/finance/bookings", label: "All Bookings", icon: Calendar },
 ];
