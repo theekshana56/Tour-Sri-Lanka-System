@@ -1,7 +1,10 @@
 package com.tsl.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +29,11 @@ import lombok.RequiredArgsConstructor;
 public class AdminPlaceController {
 
     private final PlaceService placeService;
+
+    @GetMapping
+    public List<PlaceResponse> listAll() {
+        return placeService.listAllForAdmin().stream().map(PlaceResponse::from).toList();
+    }
 
     @PostMapping
     public PlaceResponse create(@Valid @RequestBody CreatePlaceRequest request) {
@@ -52,6 +60,11 @@ public class AdminPlaceController {
     @PutMapping("/{id}/feature")
     public PlaceResponse toggleFeature(@PathVariable String id) {
         return PlaceResponse.from(placeService.toggleFeature(id));
+    }
+
+    @PutMapping("/{id}/active")
+    public PlaceResponse toggleActive(@PathVariable String id) {
+        return PlaceResponse.from(placeService.toggleActive(id));
     }
 
     @DeleteMapping("/{id}/images/{index}")

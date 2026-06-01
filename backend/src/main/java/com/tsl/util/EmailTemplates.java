@@ -28,24 +28,18 @@ public final class EmailTemplates {
                 %s
                 <table style="width:100%%;border-collapse:collapse;margin:20px 0;">
                   %s
-                  %s
-                  %s
-                  %s
-                  %s
-                  %s
                 </table>
                 <p>We'll review your booking and confirm within <strong>24 hours</strong>.</p>
                 <p style="text-align:center;margin:24px 0;">
                   <a href="%s" style="background:%s;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:bold;">Track Your Booking</a>
                 </p>
-                %s
                 """
                         .formatted(
                                 escape(booking.getCustomerName()),
                                 BRAND_GREEN,
                                 escape(booking.getBookingNumber()),
-                                tripSummaryRows(booking),
                                 pdfNote,
+                                tripSummaryRows(booking),
                                 trackUrl,
                                 CTA_TEAL));
     }

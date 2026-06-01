@@ -1,7 +1,10 @@
 package com.tsl.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +29,11 @@ import lombok.RequiredArgsConstructor;
 public class AdminVehicleController {
 
     private final VehicleService vehicleService;
+
+    @GetMapping
+    public List<VehicleResponse> listAll() {
+        return vehicleService.listAllForAdmin().stream().map(VehicleResponse::from).toList();
+    }
 
     @PostMapping
     public VehicleResponse create(@Valid @RequestBody CreateVehicleRequest request) {

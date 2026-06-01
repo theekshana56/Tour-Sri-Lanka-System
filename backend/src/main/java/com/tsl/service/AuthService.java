@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tsl.config.JwtProperties;
+import com.tsl.dto.request.ChangePasswordRequest;
 import com.tsl.dto.request.LoginRequest;
 import com.tsl.dto.request.LogoutRequest;
 import com.tsl.dto.request.RefreshTokenRequest;
@@ -120,6 +121,20 @@ public class AuthService {
     public User getCurrentUser(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public void changePassword(String userId, ChangePasswordRequest request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BadRequestException("New password and confirmation do not match");
+        }
+
+        User user = getCurrentUser(userId);
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new UnauthorizedException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     private String persistRefreshToken(String userId) {

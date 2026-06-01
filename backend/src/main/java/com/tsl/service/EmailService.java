@@ -28,6 +28,9 @@ public class EmailService {
     @Value("${spring.mail.from:bookings@tsl.lk}")
     private String mailFrom;
 
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
+
     public void sendWelcomeEmail(String to, String fullName, String tempPassword) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -126,6 +129,10 @@ public class EmailService {
     }
 
     private void sendHtml(String to, String subject, String html, byte[] attachment, String attachmentName) {
+        if (mailPassword == null || mailPassword.isBlank() || "placeholder".equals(mailPassword)) {
+            log.debug("Skipping email to {} — RESEND_API_KEY not configured", to);
+            return;
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             boolean multipart = attachment != null;

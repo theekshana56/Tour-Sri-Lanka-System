@@ -12,6 +12,7 @@ export interface User {
   role: UserRole;
   phone: string;
   profileImageUrl?: string | null;
+  preferredCurrency?: string | null;
   isActive?: boolean;
   licenseNumber?: string | null;
   assignedVehicleId?: string | null;
@@ -124,6 +125,86 @@ export interface BookingCreateResponse {
   totalPriceForeign: number;
   preferredCurrency: string;
   pdfUrl?: string | null;
+}
+
+export interface AdminBooking extends CustomerBooking {
+  reviewedByUserId?: string | null;
+  reviewedByName?: string | null;
+  reviewedAt?: string | null;
+}
+
+export interface AdminDashboardStats {
+  pendingBookings: number;
+  todaysBookings: number;
+  thisMonthRevenueLKR: number;
+  activeDrivers: number;
+}
+
+export interface AdminDashboardData {
+  stats: AdminDashboardStats;
+  pendingQueue: AdminBooking[];
+  recentActivity: AdminBooking[];
+}
+
+export interface DriverAvailability {
+  driverId: string;
+  blockedDates: string[];
+}
+
+export interface AdminCreateUserPayload {
+  fullName: string;
+  email: string;
+  temporaryPassword: string;
+  phone: string;
+  role: UserRole;
+  licenseNumber?: string;
+}
+
+export interface CustomerBooking {
+  id: string;
+  bookingNumber: string;
+  customerId?: string | null;
+  customerName: string;
+  customerEmail: string;
+  customerWhatsapp: string;
+  selectedPlaceIds: string[];
+  selectedPlaceNames: string[];
+  fromDistrict: string;
+  toDistrict: string;
+  pickupLocation: string;
+  dropLocation: string;
+  startDate: string;
+  endDate: string;
+  numberOfDays: number;
+  passengerCount: number;
+  vehicleType: VehicleType;
+  vehicleId?: string | null;
+  vehicleName?: string | null;
+  assignedDriverId?: string | null;
+  assignedDriverName?: string | null;
+  assignedDriverPhone?: string | null;
+  status: BookingStatus;
+  rejectionReason?: string | null;
+  totalPriceLKR: number;
+  totalPriceForeign: number;
+  preferredCurrency: string;
+  exchangeRateUsed?: number;
+  pdfUrl?: string | null;
+  customerNotes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateProfilePayload {
+  fullName: string;
+  phone: string;
+  preferredCurrency: string;
+}
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface PublicBookingTrack {

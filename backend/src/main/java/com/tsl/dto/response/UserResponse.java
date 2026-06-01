@@ -18,6 +18,7 @@ public class UserResponse {
     private String email;
     private Role role;
     private String phone;
+    private String preferredCurrency;
     private String profileImageUrl;
     private Boolean isActive;
     private String licenseNumber;
@@ -31,6 +32,7 @@ public class UserResponse {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .phone(user.getPhone())
+                .preferredCurrency(user.getPreferredCurrency())
                 .profileImageUrl(user.getProfileImageUrl())
                 .isActive(user.isActive())
                 .licenseNumber(user.getLicenseNumber())

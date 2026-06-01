@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -98,6 +99,17 @@ public class PlaceService {
 
     public List<Place> getFeatured() {
         return placeRepository.findTop8ByIsFeaturedTrueAndIsActiveTrueOrderByRatingDesc();
+    }
+
+    public List<Place> listAllForAdmin() {
+        return placeRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+    }
+
+    public Place toggleActive(String id) {
+        Place place = placeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Place not found"));
+        place.setActive(!place.isActive());
+        return placeRepository.save(place);
     }
 
     public Place create(CreatePlaceRequest request) {

@@ -1,10 +1,16 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import type {
+  AdminBooking,
+  AdminCreateUserPayload,
+  AdminDashboardData,
   AuthResponse,
   AvailabilityCalendarMap,
   BookingCreateResponse,
+  ChangePasswordPayload,
   CreateBookingPayload,
   CurrencyInfo,
+  CustomerBooking,
+  DriverAvailability,
   LoginRequest,
   PageResponse,
   Place,
@@ -14,8 +20,10 @@ import type {
   RangeAvailability,
   RegisterRequest,
   TokenRefreshResponse,
+  UpdateProfilePayload,
   User,
   Vehicle,
+  VehicleType,
 } from "@/types";
 
 const api = axios.create({
@@ -95,6 +103,20 @@ export const authApi = {
   logout: (refreshToken: string) =>
     api.post("/auth/logout", { refreshToken }),
   me: () => api.get<User>("/auth/me"),
+  changePassword: (data: ChangePasswordPayload) =>
+    api.post<{ message: string }>("/auth/change-password", data),
+};
+
+export const usersApi = {
+  updateProfile: (data: UpdateProfilePayload) =>
+    api.put<User>("/users/profile", data),
+  uploadProfileImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post<User>("/users/profile-image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
 };
 
 export const placesApi = {
@@ -119,6 +141,19 @@ export const availabilityApi = {
     api.get<RangeAvailability>("/availability/check", {
       params: { from, to },
     }),
+  drivers: (from: string, to: string) =>
+    api.get<
+      {
+        driverId: string;
+        driverName: string;
+        vehicleType: VehicleType;
+        vehicleName: string;
+      }[]
+    >("/availability/drivers", { params: { from, to } }),
+  vehicles: (from: string, to: string, minCapacity: number) =>
+    api.get<Vehicle[]>("/availability/vehicles", {
+      params: { from, to, minCapacity },
+    }),
 };
 
 export const pricingApi = {
@@ -132,12 +167,75 @@ export const bookingApi = {
     api.post<BookingCreateResponse>("/bookings", data),
   trackByNumber: (bookingNumber: string) =>
     api.get<PublicBookingTrack>(`/bookings/number/${encodeURIComponent(bookingNumber)}`),
+  my: (params?: { status?: string; page?: number; size?: number }) =>
+    api.get<PageResponse<CustomerBooking>>("/bookings/my", { params }),
+  cancel: (id: string) => api.put<CustomerBooking>(`/bookings/${id}/cancel`),
 };
 
 export const adminApi = {
-  listUsers: (params?: Record<string, string | number>) =>
-    api.get("/admin/users", { params }),
-  createUser: (data: unknown) => api.post("/admin/users", data),
+  getDashboard: () => api.get<AdminDashboardData>("/admin/dashboard"),
+  listBookings: (params?: {
+    status?: string;
+    search?: string;
+    page?: number;
+    size?: number;
+  }) => api.get<PageResponse<AdminBooking>>("/admin/bookings", { params }),
+  getBooking: (id: string) => api.get<AdminBooking>(`/admin/bookings/${id}`),
+  approveBooking: (
+    id: string,
+    data: { vehicleId: string; driverId: string }
+  ) => api.put<AdminBooking>(`/admin/bookings/${id}/approve`, data),
+  rejectBooking: (id: string, data: { rejectionReason: string }) =>
+    api.put<AdminBooking>(`/admin/bookings/${id}/reject`, data),
+  completeBooking: (id: string) =>
+    api.put<AdminBooking>(`/admin/bookings/${id}/complete`),
+  listPlaces: () => api.get<Place[]>("/admin/places"),
+  createPlace: (data: unknown) => api.post<Place>("/admin/places", data),
+  updatePlace: (id: string, data: unknown) =>
+    api.put<Place>(`/admin/places/${id}`, data),
+  togglePlaceActive: (id: string) =>
+    api.put<Place>(`/admin/places/${id}/active`),
+  togglePlaceFeature: (id: string) =>
+    api.put<Place>(`/admin/places/${id}/feature`),
+  uploadPlaceImage: (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post<Place>(`/admin/places/${id}/images`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  listVehicles: () => api.get<Vehicle[]>("/admin/vehicles"),
+  createVehicle: (data: unknown) => api.post<Vehicle>("/admin/vehicles", data),
+  updateVehicle: (id: string, data: unknown) =>
+    api.put<Vehicle>(`/admin/vehicles/${id}`, data),
+  deleteVehicle: (id: string) => api.delete<Vehicle>(`/admin/vehicles/${id}`),
+  uploadVehicleImage: (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post<Vehicle>(`/admin/vehicles/${id}/image`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  listUsers: (params?: { role?: string; page?: number; size?: number }) =>
+    api.get<PageResponse<User>>("/admin/users", { params }),
+  createUser: (data: AdminCreateUserPayload) =>
+    api.post<User>("/admin/users", data),
+  updateUser: (id: string, data: unknown) =>
+    api.put<User>(`/admin/users/${id}`, data),
+  toggleUserStatus: (id: string) =>
+    api.put<User>(`/admin/users/${id}/toggle-status`),
+  getDriverAvailability: (driverId: string) =>
+    api.get<DriverAvailability>(`/admin/drivers/${driverId}/availability`),
+  blockDriverDate: (driverId: string, date: string) =>
+    api.post<DriverAvailability>(
+      `/admin/drivers/${driverId}/availability/block`,
+      { date }
+    ),
+  unblockDriverDate: (driverId: string, date: string) =>
+    api.delete<DriverAvailability>(
+      `/admin/drivers/${driverId}/availability/unblock`,
+      { params: { date } }
+    ),
 };
 
 export const driverApi = {

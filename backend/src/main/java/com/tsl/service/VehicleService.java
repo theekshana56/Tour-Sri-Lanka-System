@@ -24,6 +24,10 @@ public class VehicleService {
         return vehicleRepository.findByIsActiveTrueAndCapacityGreaterThanEqualOrderByCapacityAsc(capacity);
     }
 
+    public List<Vehicle> listAllForAdmin() {
+        return vehicleRepository.findAll();
+    }
+
     public Vehicle getActiveVehicle(String id) {
         return vehicleRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found"));

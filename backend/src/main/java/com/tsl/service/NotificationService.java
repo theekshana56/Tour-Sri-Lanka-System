@@ -109,6 +109,9 @@ public class NotificationService {
 
         byte[] pdfBytes = pdfGenerator.generateBookingPdf(booking, places, breakdown);
         String pdfUrl = cloudinaryService.uploadPdf(pdfBytes, booking.getBookingNumber() + ".pdf");
+        if (pdfUrl == null) {
+            return booking;
+        }
 
         booking.setPdfUrl(pdfUrl);
         Booking saved = bookingRepository.save(booking);

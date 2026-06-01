@@ -46,6 +46,7 @@ public class User {
     private boolean isActive = true;
 
     private String profileImageUrl;
+    private String preferredCurrency;
     private String licenseNumber;
     private String assignedVehicleId;
 

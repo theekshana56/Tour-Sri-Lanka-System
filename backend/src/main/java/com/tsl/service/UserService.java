@@ -1,13 +1,17 @@
 package com.tsl.service;
 
+import java.io.IOException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.tsl.dto.request.AdminCreateUserRequest;
 import com.tsl.dto.request.AdminUpdateUserRequest;
+import com.tsl.dto.request.UpdateProfileRequest;
 import com.tsl.exception.BadRequestException;
 import com.tsl.exception.ResourceNotFoundException;
 import com.tsl.model.Role;
@@ -23,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final CloudinaryService cloudinaryService;
 
     public User createAdminUser(AdminCreateUserRequest request) {
         if (request.getRole() == null || request.getRole() == Role.CUSTOMER) {
@@ -78,5 +83,43 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         user.setActive(!user.isActive());
         return userRepository.save(user);
+    }
+
+    public User updateProfile(String userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setFullName(request.getFullName().trim());
+        user.setPhone(request.getPhone().trim());
+        user.setPreferredCurrency(request.getPreferredCurrency().toUpperCase());
+        return userRepository.save(user);
+    }
+
+    public User updateProfileImage(String userId, MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BadRequestException("Please select an image to upload");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new BadRequestException("Only image files are allowed");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        try {
+            if (user.getProfileImageUrl() != null) {
+                String publicId = cloudinaryService.extractPublicId(user.getProfileImageUrl());
+                if (publicId != null) {
+                    cloudinaryService.deleteImage(publicId);
+                }
+            }
+            String imageUrl = cloudinaryService.uploadImage(file, "tsl/profiles");
+            user.setProfileImageUrl(imageUrl);
+            return userRepository.save(user);
+        } catch (IOException ex) {
+            throw new BadRequestException("Failed to upload profile image");
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            throw new BadRequestException(ex.getMessage());
+        }
     }
 }

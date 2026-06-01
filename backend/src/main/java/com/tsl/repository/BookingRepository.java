@@ -47,4 +47,10 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
             BookingStatus status,
             LocalDate end,
             LocalDate start);
+
+    long countByStatus(BookingStatus status);
+
+    long countByCreatedAtBetween(LocalDateTime from, LocalDateTime to);
+
+    List<Booking> findByStatusOrderByCreatedAtAsc(BookingStatus status);
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tsl.dto.request.ChangePasswordRequest;
 import com.tsl.dto.request.LoginRequest;
 import com.tsl.dto.request.LogoutRequest;
 import com.tsl.dto.request.RefreshTokenRequest;
@@ -51,5 +52,13 @@ public class AuthController {
     @GetMapping("/me")
     public UserResponse me(Authentication authentication) {
         return UserResponse.from(authService.getCurrentUser(authentication.getName()));
+    }
+
+    @PostMapping("/change-password")
+    public MessageResponse changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            Authentication authentication) {
+        authService.changePassword(authentication.getName(), request);
+        return MessageResponse.builder().message("Password updated successfully").build();
     }
 }

@@ -26,7 +26,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
 
     private static final String[] PUBLIC_PATHS = {
-            "/api/auth/**",
             "/api/health",
             "/api/places/**",
             "/api/vehicles/**",
@@ -40,6 +39,13 @@ public class SecurityConfig {
             "/actuator/**"
     };
 
+    private static final String[] PUBLIC_AUTH_PATHS = {
+            "/api/auth/register",
+            "/api/auth/login",
+            "/api/auth/refresh",
+            "/api/auth/logout"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -51,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/places/**", "/api/vehicles/**", "/api/availability/**",
                                 "/api/pricing/**", "/api/bookings/number/**", "/api/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/bookings").permitAll()
+                        .requestMatchers(PUBLIC_AUTH_PATHS).permitAll()
                         .requestMatchers(PUBLIC_PATHS).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

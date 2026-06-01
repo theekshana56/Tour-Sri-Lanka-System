@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
+import com.tsl.config.CloudinaryProperties;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,9 +19,28 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CloudinaryService {
 
+    private static final long MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
     private final Cloudinary cloudinary;
+    private final CloudinaryProperties cloudinaryProperties;
+
+    public boolean isConfigured() {
+        return !isPlaceholder(cloudinaryProperties.getCloudName())
+                && !isPlaceholder(cloudinaryProperties.getApiKey())
+                && !isPlaceholder(cloudinaryProperties.getApiSecret());
+    }
+
+    private static boolean isPlaceholder(String value) {
+        return value == null || value.isBlank() || "placeholder".equalsIgnoreCase(value);
+    }
 
     public String uploadImage(MultipartFile file, String folder) throws IOException {
+        if (!isConfigured()) {
+            throw new IllegalStateException("Cloudinary is not configured. Set CLOUDINARY_* in backend/.env");
+        }
+        if (file.getSize() > MAX_IMAGE_BYTES) {
+            throw new IllegalArgumentException("Image must be 5MB or smaller");
+        }
         @SuppressWarnings("unchecked")
         Map<String, Object> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
                 "folder", folder,
@@ -36,6 +57,10 @@ public class CloudinaryService {
     }
 
     public String uploadPdf(byte[] pdfBytes, String filename) {
+        if (!isConfigured()) {
+            log.warn("Skipping PDF upload — Cloudinary credentials not configured");
+            return null;
+        }
         try {
             @SuppressWarnings("unchecked")
             Map<String, Object> result = cloudinary.uploader().upload(pdfBytes, ObjectUtils.asMap(
