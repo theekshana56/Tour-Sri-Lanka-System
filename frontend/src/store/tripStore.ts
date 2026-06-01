@@ -1,49 +1,50 @@
 import { create } from "zustand";
-import type { Place, TripDay, TripPlan } from "@/types";
+import { persist } from "zustand/middleware";
+import type { Place, PriceQuote, TripConfig } from "@/types";
 
 interface TripState {
-  places: Place[];
   selectedPlaces: Place[];
-  tripPlan: TripPlan | null;
-  setPlaces: (places: Place[]) => void;
+  tripConfig: TripConfig | null;
+  priceQuote: PriceQuote | null;
   addPlace: (place: Place) => void;
   removePlace: (placeId: string) => void;
-  setTripPlan: (plan: TripPlan) => void;
-  updateDay: (dayNumber: number, day: Partial<TripDay>) => void;
+  reorderPlaces: (newOrder: Place[]) => void;
   clearTrip: () => void;
+  setTripConfig: (config: TripConfig) => void;
+  setPriceQuote: (quote: PriceQuote | null) => void;
+  isSelected: (placeId: string) => boolean;
 }
 
-const emptyTripPlan = (): TripPlan => ({
-  title: "My Sri Lanka Trip",
-  startDate: "",
-  endDate: "",
-  days: [],
-});
-
-export const useTripStore = create<TripState>((set) => ({
-  places: [],
-  selectedPlaces: [],
-  tripPlan: null,
-  setPlaces: (places) => set({ places }),
-  addPlace: (place) =>
-    set((state) => ({
-      selectedPlaces: state.selectedPlaces.some((p) => p.id === place.id)
-        ? state.selectedPlaces
-        : [...state.selectedPlaces, place],
-    })),
-  removePlace: (placeId) =>
-    set((state) => ({
-      selectedPlaces: state.selectedPlaces.filter((p) => p.id !== placeId),
-    })),
-  setTripPlan: (plan) => set({ tripPlan: plan }),
-  updateDay: (dayNumber, day) =>
-    set((state) => {
-      if (!state.tripPlan) return state;
-      const days = state.tripPlan.days.map((d) =>
-        d.dayNumber === dayNumber ? { ...d, ...day } : d
-      );
-      return { tripPlan: { ...state.tripPlan, days } };
+export const useTripStore = create<TripState>()(
+  persist(
+    (set, get) => ({
+      selectedPlaces: [],
+      tripConfig: null,
+      priceQuote: null,
+      addPlace: (place) =>
+        set((state) => ({
+          selectedPlaces: state.selectedPlaces.some((p) => p.id === place.id)
+            ? state.selectedPlaces
+            : [...state.selectedPlaces, place],
+        })),
+      removePlace: (placeId) =>
+        set((state) => ({
+          selectedPlaces: state.selectedPlaces.filter((p) => p.id !== placeId),
+        })),
+      reorderPlaces: (newOrder) => set({ selectedPlaces: newOrder }),
+      clearTrip: () =>
+        set({ selectedPlaces: [], tripConfig: null, priceQuote: null }),
+      setTripConfig: (config) => set({ tripConfig: config }),
+      setPriceQuote: (quote) => set({ priceQuote: quote }),
+      isSelected: (placeId) =>
+        get().selectedPlaces.some((p) => p.id === placeId),
     }),
-  clearTrip: () =>
-    set({ selectedPlaces: [], tripPlan: emptyTripPlan() }),
-}));
+    {
+      name: "tsl-trip",
+      partialize: (state) => ({
+        selectedPlaces: state.selectedPlaces,
+        tripConfig: state.tripConfig,
+      }),
+    }
+  )
+);

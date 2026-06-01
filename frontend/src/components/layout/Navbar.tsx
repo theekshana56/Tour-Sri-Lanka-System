@@ -21,8 +21,9 @@ export function Navbar() {
           TSL — Tourism Sri Lanka
         </Link>
         <div className="flex items-center gap-4 text-sm">
-          <Link href="/places">Places</Link>
-          <Link href="/planner">Trip Planner</Link>
+          <Link href="/plan" className="font-medium text-tsl-teal hover:underline">
+            Plan Trip
+          </Link>
           {isAuthenticated && user ? (
             <>
               <Link href={getDashboardForRole(user.role)}>Dashboard</Link>

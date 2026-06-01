@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useAuthStore } from "@/store/authStore";
+import { useTripStore } from "@/store/tripStore";
 
 function AuthBootstrap({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -11,6 +13,7 @@ function AuthBootstrap({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const init = async () => {
       await useAuthStore.persist.rehydrate();
+      await useTripStore.persist.rehydrate();
       const { refreshToken, accessToken, refreshAccessToken } =
         useAuthStore.getState();
 
@@ -39,10 +42,24 @@ function AuthBootstrap({ children }: { children: React.ReactNode }) {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60_000,
+            retry: 1,
+          },
+        },
+      })
+  );
+
   return (
-    <AuthBootstrap>
-      {children}
-      <Toaster position="top-right" />
-    </AuthBootstrap>
+    <QueryClientProvider client={queryClient}>
+      <AuthBootstrap>
+        {children}
+        <Toaster position="top-right" />
+      </AuthBootstrap>
+    </QueryClientProvider>
   );
 }

@@ -91,15 +91,72 @@ export interface Vehicle {
 
 export type BookingStatus =
   | "PENDING"
-  | "CONFIRMED"
-  | "CANCELLED"
+  | "APPROVED"
+  | "REJECTED"
   | "COMPLETED"
-  | "IN_PROGRESS";
+  | "CANCELLED";
 
-export interface TripDay {
-  dayNumber: number;
-  placeIds: string[];
-  notes?: string;
+export interface CreateBookingPayload {
+  customerName: string;
+  customerEmail: string;
+  customerWhatsapp: string;
+  selectedPlaceIds: string[];
+  fromDistrict: string;
+  toDistrict: string;
+  pickupLocation: string;
+  dropLocation: string;
+  startDate: string;
+  endDate: string;
+  passengerCount: number;
+  vehicleType: VehicleType;
+  preferredCurrency: string;
+  customerNotes?: string;
+}
+
+export interface BookingCreateResponse {
+  id: string;
+  bookingNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerWhatsapp: string;
+  status: BookingStatus;
+  totalPriceLKR: number;
+  totalPriceForeign: number;
+  preferredCurrency: string;
+  pdfUrl?: string | null;
+}
+
+export interface PublicBookingTrack {
+  bookingNumber: string;
+  status: BookingStatus;
+  customerName: string;
+  customerEmail?: string;
+  customerWhatsapp?: string;
+  selectedPlaceNames?: string[];
+  fromDistrict: string;
+  toDistrict: string;
+  startDate: string;
+  endDate: string;
+  numberOfDays: number;
+  passengerCount: number;
+  vehicleType: VehicleType;
+  assignedDriverName?: string | null;
+  vehicleName?: string | null;
+  totalPriceLKR?: number;
+  totalPriceForeign?: number;
+  preferredCurrency?: string;
+  pdfUrl?: string | null;
+  rejectionReason?: string | null;
+}
+
+/** @deprecated use BookingCreateResponse or PublicBookingTrack */
+export interface Booking {
+  id: string;
+  userId: string;
+  tripPlan: TripPlan;
+  status: BookingStatus;
+  totalPrice: number;
+  createdAt: string;
 }
 
 export interface TripPlan {
@@ -111,13 +168,10 @@ export interface TripPlan {
   vehicleId?: string;
 }
 
-export interface Booking {
-  id: string;
-  userId: string;
-  tripPlan: TripPlan;
-  status: BookingStatus;
-  totalPrice: number;
-  createdAt: string;
+export interface TripDay {
+  fromDistrict: string;
+  toDistrict: string;
+  multiplier: number;
 }
 
 export interface ZoneMultiplier {
@@ -166,14 +220,68 @@ export interface PriceQuote {
   breakdown: PriceQuoteBreakdown;
 }
 
-export type AvailabilityStatus = "AVAILABLE" | "LIMITED" | "UNAVAILABLE";
+export interface TripConfig {
+  fromDistrict: string;
+  toDistrict: string;
+  pickupLocation: string;
+  dropLocation: string;
+  passengerCount: number;
+  vehicleType: VehicleType;
+  preferredCurrency: string;
+  startDate: string;
+  endDate: string;
+  customerNotes?: string;
+}
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export interface PlaceFilters {
+  category?: PlaceCategory | "";
+  district?: string;
+  priceRange?: PriceRange | "";
+  tags?: string;
+  search?: string;
+  page?: number;
+  size?: number;
+}
+
+export type AvailabilityStatus = "AVAILABLE" | "LIMITED" | "UNAVAILABLE" | "PAST";
+
+export interface DayAvailability {
+  availableDrivers: number;
+  availableVehicles: number;
+  isAvailable: boolean;
+}
+
+export type AvailabilityCalendarMap = Record<string, DayAvailability>;
+
+export interface RangeAvailability {
+  available: boolean;
+  minAvailableDrivers: number;
+  minAvailableVehicles: number;
+  blockedDays: string[];
+}
+
+export interface CurrencyInfo {
+  code: string;
+  name: string;
+  symbol: string;
+}
+
+/** @deprecated use DayAvailability + AvailabilityCalendarMap */
 export interface AvailabilityDay {
   date: string;
   status: AvailabilityStatus;
   availableDrivers: number;
 }
 
+/** @deprecated use AvailabilityCalendarMap */
 export interface AvailabilityCalendar {
   year: number;
   month: number;

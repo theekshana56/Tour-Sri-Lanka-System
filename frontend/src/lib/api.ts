@@ -1,13 +1,21 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import type {
   AuthResponse,
-  Booking,
+  AvailabilityCalendarMap,
+  BookingCreateResponse,
+  CreateBookingPayload,
+  CurrencyInfo,
   LoginRequest,
+  PageResponse,
   Place,
+  PlaceFilters,
   PriceQuote,
+  PublicBookingTrack,
+  RangeAvailability,
   RegisterRequest,
   TokenRefreshResponse,
   User,
+  Vehicle,
 } from "@/types";
 
 const api = axios.create({
@@ -90,17 +98,40 @@ export const authApi = {
 };
 
 export const placesApi = {
-  list: (params?: Record<string, string | number>) =>
-    api.get<{ content: Place[] }>("/places", { params }),
+  list: (params?: PlaceFilters) =>
+    api.get<PageResponse<Place>>("/places", { params }),
   getById: (id: string) => api.get<Place>(`/places/${id}`),
   featured: () => api.get<Place[]>("/places/featured"),
   districts: () => api.get<string[]>("/places/districts"),
 };
 
+export const vehiclesApi = {
+  list: (capacity = 1) =>
+    api.get<Vehicle[]>("/vehicles", { params: { capacity } }),
+};
+
+export const availabilityApi = {
+  calendar: (year: number, month: number) =>
+    api.get<AvailabilityCalendarMap>("/availability/calendar", {
+      params: { year, month },
+    }),
+  check: (from: string, to: string) =>
+    api.get<RangeAvailability>("/availability/check", {
+      params: { from, to },
+    }),
+};
+
+export const pricingApi = {
+  quote: (params: Record<string, string | number>) =>
+    api.get<PriceQuote>("/pricing/quote", { params }),
+  currencies: () => api.get<CurrencyInfo[]>("/pricing/currencies"),
+};
+
 export const bookingApi = {
-  list: () => api.get<Booking[]>("/bookings"),
-  getById: (id: string) => api.get<Booking>(`/bookings/${id}`),
-  create: (data: unknown) => api.post<Booking>("/bookings", data),
+  create: (data: CreateBookingPayload) =>
+    api.post<BookingCreateResponse>("/bookings", data),
+  trackByNumber: (bookingNumber: string) =>
+    api.get<PublicBookingTrack>(`/bookings/number/${encodeURIComponent(bookingNumber)}`),
 };
 
 export const adminApi = {
@@ -119,7 +150,7 @@ export const financeApi = {
   getPricingRules: () => api.get("/finance/pricing-rules"),
   getExchangeRates: () => api.get("/finance/exchange-rates"),
   getQuote: (params: Record<string, string | number>) =>
-    api.get<PriceQuote>("/pricing/quote", { params }),
+    pricingApi.quote(params),
 };
 
 export default api;

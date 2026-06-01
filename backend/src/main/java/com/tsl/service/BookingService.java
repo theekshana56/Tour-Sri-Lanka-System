@@ -256,11 +256,11 @@ public class BookingService {
 
     private void validateCreateRequest(CreateBookingRequest request) {
         LocalDate today = LocalDate.now();
-        if (!request.getStartDate().isAfter(today)) {
-            throw new BadRequestException("Start date must be in the future");
+        if (request.getStartDate().isBefore(today)) {
+            throw new BadRequestException("Start date cannot be in the past");
         }
-        if (!request.getEndDate().isAfter(request.getStartDate())) {
-            throw new BadRequestException("End date must be after start date");
+        if (request.getEndDate().isBefore(request.getStartDate())) {
+            throw new BadRequestException("End date cannot be before start date");
         }
         if (request.getPassengerCount() < 1) {
             throw new BadRequestException("Passenger count must be at least 1");

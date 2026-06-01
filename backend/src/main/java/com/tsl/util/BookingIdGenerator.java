@@ -21,9 +21,7 @@ public class BookingIdGenerator {
 
     public String generate() {
         Query query = new Query(Criteria.where("_id").is(BOOKING_COUNTER_ID));
-        Update update = new Update();
-        update.setOnInsert("sequence", -1L);
-        update.inc("sequence", 1);
+        Update update = new Update().inc("sequence", 1);
 
         Counter counter = mongoTemplate.findAndModify(
                 query,
@@ -31,7 +29,7 @@ public class BookingIdGenerator {
                 FindAndModifyOptions.options().returnNew(true).upsert(true),
                 Counter.class);
 
-        long sequence = counter != null ? counter.getSequence() : 0;
+        long sequence = counter != null ? counter.getSequence() - 1 : 0;
         return formatBookingNumber(sequence);
     }
 

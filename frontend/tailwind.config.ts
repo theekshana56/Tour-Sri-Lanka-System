@@ -60,6 +60,12 @@ const config: Config = {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        tsl: {
+          forest: "#1a3c2e",
+          forestLight: "#2d6a4f",
+          sand: "#f5e6c8",
+          teal: "#0d7377",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -68,6 +74,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        serif: ["Georgia", "Cambria", "Times New Roman", "serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
       },
     },
