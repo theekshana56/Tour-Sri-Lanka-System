@@ -1,6 +1,6 @@
 "use client";
 
-import type { PriceQuote, VehicleType } from "@/types";
+import type { PriceQuote } from "@/types";
 import { useDebouncedValue } from "@/hooks/useDebounce";
 import { usePriceQuote } from "@/hooks/useAvailability";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
