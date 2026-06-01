@@ -1,6 +1,19 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getDashboardForRole } from "@/lib/auth";
+import { useAuthStore } from "@/store/authStore";
 
 export function Navbar() {
+  const router = useRouter();
+  const { isAuthenticated, user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+
   return (
     <header className="border-b bg-background">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
@@ -10,7 +23,23 @@ export function Navbar() {
         <div className="flex items-center gap-4 text-sm">
           <Link href="/places">Places</Link>
           <Link href="/planner">Trip Planner</Link>
-          <Link href="/login">Login</Link>
+          {isAuthenticated && user ? (
+            <>
+              <Link href={getDashboardForRole(user.role)}>Dashboard</Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="hover:underline"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">Login</Link>
+              <Link href="/register">Register</Link>
+            </>
+          )}
         </div>
       </nav>
     </header>

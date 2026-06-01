@@ -2,6 +2,8 @@ package com.tsl.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,13 +19,20 @@ import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
     private static final String[] PUBLIC_PATHS = {
+            "/api/auth/**",
             "/api/health",
+            "/api/places/**",
+            "/api/vehicles/**",
+            "/api/availability/**",
+            "/api/pricing/**",
+            "/api/bookings/number/**",
             "/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
@@ -39,6 +48,9 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/places/**", "/api/vehicles/**", "/api/availability/**",
+                                "/api/pricing/**", "/api/bookings/number/**", "/api/health").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings").permitAll()
                         .requestMatchers(PUBLIC_PATHS).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -48,6 +60,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 }

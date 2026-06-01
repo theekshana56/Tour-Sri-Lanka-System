@@ -13,6 +13,7 @@ spring:
     username: resend
     password: ${RESEND_API_KEY:placeholder}
     protocol: smtps
+    from: bookings@tsl.lk
     properties:
       mail.smtp.auth: true
       mail.smtp.ssl.enable: true

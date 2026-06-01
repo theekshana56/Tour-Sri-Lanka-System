@@ -1,20 +1,44 @@
 package com.tsl.util;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.tsl.model.Counter;
+
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class BookingIdGenerator {
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private final AtomicInteger sequence = new AtomicInteger(1);
+    private static final String BOOKING_COUNTER_ID = "booking";
+
+    private final MongoTemplate mongoTemplate;
 
     public String generate() {
-        String datePart = LocalDate.now().format(DATE_FORMAT);
-        int seq = sequence.getAndIncrement();
-        return String.format("TSL-%s-%04d", datePart, seq);
+        Query query = new Query(Criteria.where("_id").is(BOOKING_COUNTER_ID));
+        Update update = new Update();
+        update.setOnInsert("sequence", -1L);
+        update.inc("sequence", 1);
+
+        Counter counter = mongoTemplate.findAndModify(
+                query,
+                update,
+                FindAndModifyOptions.options().returnNew(true).upsert(true),
+                Counter.class);
+
+        long sequence = counter != null ? counter.getSequence() : 0;
+        return formatBookingNumber(sequence);
+    }
+
+    static String formatBookingNumber(long sequence) {
+        if (sequence < 10) {
+            return String.format("TSL-V-%02d", sequence);
+        }
+        return "TSL-V-" + sequence;
     }
 }
