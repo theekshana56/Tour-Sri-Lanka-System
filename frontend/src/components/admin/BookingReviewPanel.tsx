@@ -31,6 +31,7 @@ interface BookingReviewPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdated?: () => void;
+  canComplete?: boolean;
 }
 
 export function BookingReviewPanel({
@@ -38,6 +39,7 @@ export function BookingReviewPanel({
   open,
   onOpenChange,
   onUpdated,
+  canComplete = true,
 }: BookingReviewPanelProps) {
   const queryClient = useQueryClient();
   const [vehicleId, setVehicleId] = useState("");
@@ -276,7 +278,7 @@ export function BookingReviewPanel({
               </div>
             )}
 
-            {booking.status === "APPROVED" && (
+            {canComplete && booking.status === "APPROVED" && (
               <Button
                 className="w-full"
                 disabled={completeMutation.isPending}

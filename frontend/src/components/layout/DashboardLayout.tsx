@@ -17,9 +17,10 @@ import { getDashboardForRole } from "@/lib/auth";
 import {
   ADMIN_NAV,
   CUSTOMER_NAV,
+  MANAGER_NAV,
   type DashboardNavItem,
 } from "@/lib/dashboard-config";
-import { adminApi } from "@/lib/api";
+import { adminApi, managerApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 
 function getInitials(name: string) {
@@ -32,21 +33,26 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-type DashboardVariant = "customer" | "admin";
+type DashboardVariant = "customer" | "admin" | "manager";
 
 const VARIANT_CONFIG: Record<
   DashboardVariant,
-  { nav: DashboardNavItem[]; portalLabel: string; requiredRole: string }
+  { nav: DashboardNavItem[]; portalLabel: string; requiredRoles: string[] }
 > = {
   customer: {
     nav: [...CUSTOMER_NAV, { href: "/dashboard/profile", label: "Profile", icon: User }],
     portalLabel: "Customer Portal",
-    requiredRole: "CUSTOMER",
+    requiredRoles: ["CUSTOMER"],
   },
   admin: {
     nav: ADMIN_NAV,
     portalLabel: "Admin Portal",
-    requiredRole: "ADMIN",
+    requiredRoles: ["ADMIN"],
+  },
+  manager: {
+    nav: MANAGER_NAV,
+    portalLabel: "Manager Portal",
+    requiredRoles: ["ADMIN", "MANAGER"],
   },
 };
 
@@ -73,14 +79,29 @@ export function DashboardLayout({
     refetchInterval: 60_000,
   });
 
-  const pendingCount = adminDash?.stats.pendingBookings ?? 0;
+  const { data: managerDash } = useQuery({
+    queryKey: ["manager-dashboard"],
+    queryFn: async () => (await managerApi.getDashboard()).data,
+    enabled:
+      variant === "manager" &&
+      (user?.role === "MANAGER" || user?.role === "ADMIN"),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+
+  const pendingCount =
+    variant === "admin"
+      ? adminDash?.stats.pendingBookings ?? 0
+      : variant === "manager"
+        ? managerDash?.stats.pendingBookings ?? 0
+        : 0;
 
   useEffect(() => {
     if (!user) return;
-    if (user.role !== config.requiredRole) {
+    if (!config.requiredRoles.includes(user.role)) {
       router.replace(getDashboardForRole(user.role));
     }
-  }, [user, config.requiredRole, router]);
+  }, [user, config.requiredRoles, router]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -102,10 +123,7 @@ export function DashboardLayout({
 
       <nav className="flex-1 space-y-1 p-3">
         {config.nav.map(({ href, label, icon: Icon, showPendingBadge }) => {
-          const active =
-            href === "/dashboard" || href === "/admin/dashboard"
-              ? pathname === href
-              : pathname.startsWith(href);
+          const active = pathname === href || pathname.startsWith(`${href}/`);
           const badge =
             showPendingBadge && pendingCount > 0 ? pendingCount : null;
 

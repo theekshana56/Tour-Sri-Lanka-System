@@ -3,6 +3,7 @@ import type {
   AdminBooking,
   AdminCreateUserPayload,
   AdminDashboardData,
+  ManagerDashboardData,
   AuthResponse,
   AvailabilityCalendarMap,
   BookingCreateResponse,
@@ -177,6 +178,7 @@ export const adminApi = {
   listBookings: (params?: {
     status?: string;
     search?: string;
+    reviewedBy?: string;
     page?: number;
     size?: number;
   }) => api.get<PageResponse<AdminBooking>>("/admin/bookings", { params }),
@@ -236,6 +238,10 @@ export const adminApi = {
       `/admin/drivers/${driverId}/availability/unblock`,
       { params: { date } }
     ),
+};
+
+export const managerApi = {
+  getDashboard: () => api.get<ManagerDashboardData>("/manager/dashboard"),
 };
 
 export const driverApi = {

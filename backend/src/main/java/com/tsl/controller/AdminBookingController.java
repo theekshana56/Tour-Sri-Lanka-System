@@ -33,8 +33,12 @@ public class AdminBookingController {
     public Page<BookingResponse> list(
             @RequestParam(required = false) BookingStatus status,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String reviewedBy,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
+        if (reviewedBy != null && !reviewedBy.isBlank()) {
+            return bookingService.getBookingsReviewedBy(reviewedBy, page, size);
+        }
         return bookingService.getAdminBookings(status, search, page, size);
     }
 

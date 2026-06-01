@@ -239,6 +239,20 @@ public class BookingService {
         return bookings.map(BookingResponse::from);
     }
 
+    public Page<BookingResponse> getBookingsReviewedBy(String reviewedByUserId, int page, int size) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "reviewedAt", "createdAt"));
+
+        List<BookingStatus> statuses = List.of(BookingStatus.APPROVED, BookingStatus.REJECTED);
+        Page<Booking> bookings = bookingRepository.findByReviewedByUserIdAndStatusIn(
+                reviewedByUserId,
+                statuses,
+                pageable);
+        return bookings.map(BookingResponse::from);
+    }
+
     public Page<BookingResponse> getDriverBookings(String driverId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "startDate"));
         return bookingRepository.findByAssignedDriverId(driverId, pageable).map(BookingResponse::from);

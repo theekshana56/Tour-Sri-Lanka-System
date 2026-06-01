@@ -146,6 +146,18 @@ export interface AdminDashboardData {
   recentActivity: AdminBooking[];
 }
 
+export interface ManagerDashboardStats {
+  pendingBookings: number;
+  approvedToday: number;
+  rejectedThisWeek: number;
+  totalReviewed: number;
+}
+
+export interface ManagerDashboardData {
+  stats: ManagerDashboardStats;
+  pendingQueue: AdminBooking[];
+}
+
 export interface DriverAvailability {
   driverId: string;
   blockedDates: string[];

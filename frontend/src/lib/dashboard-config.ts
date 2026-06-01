@@ -3,6 +3,8 @@ import {
   Calendar,
   Car,
   Home,
+  History,
+  ClipboardList,
   MapPin,
   UserCog,
   Users,
@@ -32,4 +34,16 @@ export const ADMIN_NAV: DashboardNavItem[] = [
   { href: "/admin/vehicles", label: "Vehicles Management", icon: Car },
   { href: "/admin/users", label: "Users Management", icon: Users },
   { href: "/admin/drivers", label: "Drivers Management", icon: UserCog },
+];
+
+export const MANAGER_NAV: DashboardNavItem[] = [
+  { href: "/manager/dashboard", label: "Overview", icon: Home },
+  {
+    href: "/manager/dashboard",
+    label: "Booking Queue",
+    icon: ClipboardList,
+    showPendingBadge: true,
+  },
+  { href: "/manager/bookings", label: "All Bookings", icon: Calendar },
+  { href: "/manager/actions", label: "My Actions Log", icon: History },
 ];
