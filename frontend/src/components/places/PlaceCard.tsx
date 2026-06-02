@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 
 interface PlaceCardProps {
   place: Place;
-  isSelected: boolean;
-  onToggle: () => void;
   onViewDetails: () => void;
+  variant?: "default" | "compact";
+  isSelected?: boolean;
+  onToggle?: () => void;
 }
 
 function StarRating({ rating }: { rating?: number }) {
@@ -59,10 +60,12 @@ function PriceDots({ level }: { level: number }) {
 
 export function PlaceCard({
   place,
-  isSelected,
+  isSelected = false,
   onToggle,
   onViewDetails,
+  variant = "default",
 }: PlaceCardProps) {
+  const compact = variant === "compact";
   const imageUrl = getPlaceImageUrl(place.thumbnailUrl, place.imageUrls);
 
   return (
@@ -90,7 +93,7 @@ export function PlaceCard({
         >
           {getCategoryLabel(place.category)}
         </span>
-        {isSelected && (
+        {!compact && isSelected && (
           <div className="absolute inset-0 flex items-center justify-center bg-emerald-600/40">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg">
               <Check className="h-7 w-7 text-emerald-600" strokeWidth={3} />
@@ -118,31 +121,38 @@ export function PlaceCard({
             </span>
           ))}
         </div>
-        <div className="flex items-center justify-between gap-2 pt-2">
+        <div
+          className={cn(
+            "flex items-center gap-2 pt-2",
+            compact ? "justify-start" : "justify-between"
+          )}
+        >
           <Button variant="link" size="sm" onClick={onViewDetails} className="px-0">
             View Details
           </Button>
-          <Button
-            size="sm"
-            variant={isSelected ? "default" : "outline"}
-            className={cn(
-              isSelected
-                ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                : "border-emerald-600 text-emerald-700 hover:bg-emerald-50"
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle();
-            }}
-          >
-            {isSelected ? (
-              <>
-                <Check className="mr-1 h-4 w-4" /> Added
-              </>
-            ) : (
-              "Add to Trip"
-            )}
-          </Button>
+          {!compact && onToggle && (
+            <Button
+              size="sm"
+              variant={isSelected ? "default" : "outline"}
+              className={cn(
+                isSelected
+                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                  : "border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggle();
+              }}
+            >
+              {isSelected ? (
+                <>
+                  <Check className="mr-1 h-4 w-4" /> Added
+                </>
+              ) : (
+                "Add to Trip"
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </article>

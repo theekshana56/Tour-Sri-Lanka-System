@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/tsldb}
+      uri: mongodb+srv://theekshanagamage056_db_user:f8sHpCHrOJXYvFKb@cluster0.aveyph5.mongodb.net/tsldb?retryWrites=true&w=majority&appName=Cluster0
 
 logging:
   level:
