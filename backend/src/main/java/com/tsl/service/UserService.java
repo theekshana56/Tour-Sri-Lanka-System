@@ -91,6 +91,9 @@ public class UserService {
         user.setFullName(request.getFullName().trim());
         user.setPhone(request.getPhone().trim());
         user.setPreferredCurrency(request.getPreferredCurrency().toUpperCase());
+        if (request.getIsAvailable() != null && user.getRole() == Role.DRIVER) {
+            user.setAvailable(request.getIsAvailable());
+        }
         return userRepository.save(user);
     }
 

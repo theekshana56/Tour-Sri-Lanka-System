@@ -73,6 +73,7 @@ public final class EmailTemplates {
                 <table style="width:100%%;border-collapse:collapse;margin:16px 0;">
                   %s
                   %s
+                  %s
                   <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Driver</strong></td>
                       <td style="padding:8px;border-bottom:1px solid #eee;">%s</td></tr>
                   <tr><td style="padding:8px;border-bottom:1px solid #eee;"><strong>Driver Phone</strong></td>
@@ -91,6 +92,7 @@ public final class EmailTemplates {
                                 escape(booking.getBookingNumber()),
                                 row("Route", booking.getFromDistrict() + " → " + booking.getToDistrict()),
                                 row("Dates", booking.getStartDate() + " to " + booking.getEndDate()),
+                                row("Pickup time", formatPickupTime(booking)),
                                 escape(nullToDash(booking.getAssignedDriverName())),
                                 escape(nullToDash(booking.getAssignedDriverPhone())),
                                 escape(booking.getPickupLocation()),
@@ -147,7 +149,6 @@ public final class EmailTemplates {
     }
 
     public static String driverAssignment(Booking booking) {
-        String waLink = whatsappLink(booking.getCustomerWhatsapp());
         return wrap(
                 "New Trip Assignment",
                 """
@@ -160,22 +161,26 @@ public final class EmailTemplates {
                   %s
                   %s
                   %s
+                  %s
                 </table>
-                <p><strong>Customer:</strong> %s<br/>
-                <strong>WhatsApp:</strong> <a href="%s">%s</a></p>
+                <p><strong>Customer:</strong> %s</p>
+                <p style="background:#e8f5f3;border-radius:8px;padding:12px;">
+                  Contact the customer only through the <strong>TSL Driver App</strong>
+                  (secure message &amp; voice call). Personal phone numbers are not shared.
+                </p>
                 """
                         .formatted(
                                 escape(booking.getBookingNumber()),
                                 row("Start Date", String.valueOf(booking.getStartDate())),
+                                row("Pickup time", formatPickupTime(booking)),
                                 row("Pickup", booking.getPickupLocation()),
                                 row("Drop-off", booking.getDropLocation()),
                                 row("Duration", booking.getNumberOfDays() + " days"),
                                 row("Passengers", String.valueOf(booking.getPassengerCount())),
                                 row("Total (LKR)", String.valueOf(booking.getTotalPriceLKR())),
                                 row("Status", booking.getStatus().name()),
-                                escape(booking.getCustomerName()),
-                                waLink,
-                                escape(booking.getCustomerWhatsapp())));
+                                row("Contact", "TSL Driver App → Messages"),
+                                escape(booking.getCustomerName())));
     }
 
     private static String wrap(String title, String body) {
@@ -239,6 +244,10 @@ public final class EmailTemplates {
 
     private static String escapeAttr(String text) {
         return escape(text);
+    }
+
+    private static String formatPickupTime(Booking booking) {
+        return booking.getPickupTime() != null ? booking.getPickupTime().toString() : "—";
     }
 
     private static String nullToDash(String value) {

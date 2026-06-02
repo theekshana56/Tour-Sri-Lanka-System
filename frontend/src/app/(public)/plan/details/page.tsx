@@ -64,6 +64,7 @@ export default function TripDetailsPage() {
       fromDistrict: tripConfig?.fromDistrict ?? inferred.from,
       toDistrict: tripConfig?.toDistrict ?? inferred.to,
       pickupLocation: tripConfig?.pickupLocation ?? "",
+      pickupTime: tripConfig?.pickupTime ?? "08:00",
       dropLocation: tripConfig?.dropLocation ?? "",
       passengerCount: tripConfig?.passengerCount ?? 2,
       vehicleType: tripConfig?.vehicleType ?? "",
@@ -80,6 +81,7 @@ export default function TripDetailsPage() {
       fromDistrict: defaults.fromDistrict,
       toDistrict: defaults.toDistrict,
       pickupLocation: defaults.pickupLocation,
+      pickupTime: defaults.pickupTime,
       dropLocation: defaults.dropLocation,
       passengerCount: defaults.passengerCount,
       vehicleType: defaults.vehicleType,
@@ -220,6 +222,7 @@ export default function TripDetailsPage() {
     !!fromDistrict &&
     !!toDistrict &&
     !!vehicleType &&
+    !!watch("pickupTime") &&
     !!startDate &&
     !!endDate &&
     numberOfDays > 0 &&
@@ -232,6 +235,7 @@ export default function TripDetailsPage() {
       fromDistrict: values.fromDistrict,
       toDistrict: values.toDistrict,
       pickupLocation: values.pickupLocation,
+      pickupTime: values.pickupTime,
       dropLocation: values.dropLocation,
       passengerCount: values.passengerCount,
       vehicleType: values.vehicleType as VehicleType,
@@ -302,6 +306,13 @@ export default function TripDetailsPage() {
                     <Input
                       {...register("pickupLocation")}
                       placeholder="Hotel name, street, city..."
+                    />
+                  </Field>
+                  <Field label="Pickup Time" error={errors.pickupTime?.message}>
+                    <Input
+                      type="time"
+                      {...register("pickupTime")}
+                      className="flex h-10 w-full rounded-md border bg-background px-3 text-sm"
                     />
                   </Field>
                   <Field label="Drop-off Address" error={errors.dropLocation?.message}>

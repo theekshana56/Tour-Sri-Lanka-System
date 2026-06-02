@@ -24,4 +24,7 @@ public class UpdateProfileRequest {
     @NotBlank
     @Size(min = 3, max = 3)
     private String preferredCurrency;
+
+    /** When set, updates driver trip availability (drivers only). */
+    private Boolean isAvailable;
 }

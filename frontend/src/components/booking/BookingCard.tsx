@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { ArrowRight, FileDown, Users } from "lucide-react";
+import { ArrowRight, FileDown, MessageCircle, Users } from "lucide-react";
+import { TripCommunicationDialog } from "@/components/communication/TripCommunicationDialog";
+import { communicationApi } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
@@ -26,7 +29,18 @@ interface BookingCardProps {
 export function BookingCard({ booking }: BookingCardProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [commOpen, setCommOpen] = useState(false);
   const cancelMutation = useCancelBooking();
+
+  const { data: conversation } = useQuery({
+    queryKey: ["booking-conversation", booking.id],
+    queryFn: async () => {
+      const { data } = await communicationApi.getByBooking(booking.id);
+      return data;
+    },
+    enabled: booking.status === "APPROVED" && !!booking.assignedDriverId,
+    retry: false,
+  });
 
   const start = parseISO(booking.startDate);
   const end = parseISO(booking.endDate);
@@ -81,10 +95,20 @@ export function BookingCard({ booking }: BookingCardProps) {
           </div>
 
           {booking.status === "APPROVED" && booking.assignedDriverName && (
-            <div className="rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900">
-              Your Driver: <strong>{booking.assignedDriverName}</strong>
-              {booking.assignedDriverPhone && (
-                <span> | {booking.assignedDriverPhone}</span>
+            <div className="space-y-2 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-900">
+              <p>
+                Your driver: <strong>{booking.assignedDriverName}</strong>
+              </p>
+              {conversation && (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="w-full bg-tsl-teal hover:bg-tsl-teal/90"
+                  onClick={() => setCommOpen(true)}
+                >
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Message or call driver (secure)
+                </Button>
               )}
             </div>
           )}
@@ -133,6 +157,16 @@ export function BookingCard({ booking }: BookingCardProps) {
         open={detailOpen}
         onOpenChange={setDetailOpen}
       />
+
+      {conversation && (
+        <TripCommunicationDialog
+          open={commOpen}
+          onOpenChange={setCommOpen}
+          conversationId={conversation.id}
+          bookingNumber={booking.bookingNumber}
+          peerLabel={booking.assignedDriverName ?? "Your driver"}
+        />
+      )}
 
       <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
         <DialogContent className="max-w-md">

@@ -106,6 +106,7 @@ export interface CreateBookingPayload {
   toDistrict: string;
   pickupLocation: string;
   dropLocation: string;
+  pickupTime: string;
   startDate: string;
   endDate: string;
   passengerCount: number;
@@ -131,6 +132,71 @@ export interface AdminBooking extends CustomerBooking {
   reviewedByUserId?: string | null;
   reviewedByName?: string | null;
   reviewedAt?: string | null;
+}
+
+/** Driver trip view — customer contact is platform-mediated only */
+export type DriverTripBooking = Omit<
+  AdminBooking,
+  "customerEmail" | "customerWhatsapp"
+> & {
+  conversationId?: string | null;
+};
+
+export type TripConversationStatus = "ACTIVE" | "CLOSED";
+
+export type TripCallStatus =
+  | "RINGING"
+  | "ACTIVE"
+  | "ENDED"
+  | "MISSED"
+  | "DECLINED";
+
+export interface TripConversation {
+  id: string;
+  bookingId: string;
+  bookingNumber: string;
+  customerId?: string | null;
+  customerName: string;
+  driverId: string;
+  driverName: string;
+  status: TripConversationStatus;
+  lastMessageAt?: string | null;
+  createdAt?: string;
+  unreadCount: number;
+}
+
+export interface TripMessage {
+  id: string;
+  conversationId: string;
+  bookingId: string;
+  senderId: string;
+  senderRole: UserRole;
+  senderDisplayName: string;
+  body: string;
+  type: "TEXT" | "SYSTEM";
+  createdAt: string;
+}
+
+export interface TripCallSession {
+  id: string;
+  conversationId: string;
+  bookingId: string;
+  initiatorId: string;
+  initiatorRole: UserRole;
+  status: TripCallStatus;
+  answeredAt?: string | null;
+  endedAt?: string | null;
+  durationSeconds?: number | null;
+  createdAt: string;
+}
+
+export interface CallSignal {
+  id: string;
+  callSessionId: string;
+  fromUserId: string;
+  signalType: string;
+  payload: string;
+  createdAt: string;
 }
 
 export interface AdminDashboardStats {
@@ -234,6 +300,7 @@ export interface CustomerBooking {
   toDistrict: string;
   pickupLocation: string;
   dropLocation: string;
+  pickupTime?: string | null;
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -260,6 +327,7 @@ export interface UpdateProfilePayload {
   fullName: string;
   phone: string;
   preferredCurrency: string;
+  isAvailable?: boolean;
 }
 
 export interface ChangePasswordPayload {
@@ -277,6 +345,7 @@ export interface PublicBookingTrack {
   selectedPlaceNames?: string[];
   fromDistrict: string;
   toDistrict: string;
+  pickupTime?: string | null;
   startDate: string;
   endDate: string;
   numberOfDays: number;
@@ -367,6 +436,7 @@ export interface TripConfig {
   toDistrict: string;
   pickupLocation: string;
   dropLocation: string;
+  pickupTime: string;
   passengerCount: number;
   vehicleType: VehicleType;
   preferredCurrency: string;

@@ -157,6 +157,8 @@ public class PdfGenerator {
                 .setMarginTop(8);
 
         addDetailRow(table, "Pickup Location", booking.getPickupLocation());
+        addDetailRow(table, "Pickup Time", booking.getPickupTime() != null
+                ? booking.getPickupTime().toString() : "—");
         addDetailRow(table, "Drop Location", booking.getDropLocation());
         addDetailRow(table, "From District", booking.getFromDistrict());
         addDetailRow(table, "To District", booking.getToDistrict());

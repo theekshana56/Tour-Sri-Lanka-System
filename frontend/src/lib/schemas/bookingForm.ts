@@ -38,3 +38,51 @@ export function combineWhatsapp(countryCode: string, number: string) {
   const digits = number.replace(/\D/g, "");
   return `${countryCode}${digits}`;
 }
+
+const COUNTRY_CODE_VALUES = COUNTRY_CODES.map((c) => c.code).sort(
+  (a, b) => b.length - a.length
+);
+
+/** Split stored profile phone (e.g. +94771234567) into country code + local number */
+export function parsePhoneForBooking(phone?: string | null): {
+  countryCode: string;
+  whatsappNumber: string;
+} {
+  const normalized = (phone ?? "").replace(/[\s-]/g, "");
+  if (!normalized) {
+    return { countryCode: "+94", whatsappNumber: "" };
+  }
+
+  if (normalized.startsWith("+")) {
+    for (const code of COUNTRY_CODE_VALUES) {
+      if (normalized.startsWith(code)) {
+        return {
+          countryCode: code,
+          whatsappNumber: normalized.slice(code.length),
+        };
+      }
+    }
+  }
+
+  return {
+    countryCode: "+94",
+    whatsappNumber: normalized.replace(/^0+/, ""),
+  };
+}
+
+export function getBookingContactDefaultsFromUser(
+  user: { fullName: string; email: string; phone: string },
+  customerNotes?: string
+): Pick<
+  BookingFormValues,
+  "customerName" | "customerEmail" | "countryCode" | "whatsappNumber" | "customerNotes"
+> {
+  const { countryCode, whatsappNumber } = parsePhoneForBooking(user.phone);
+  return {
+    customerName: user.fullName,
+    customerEmail: user.email,
+    countryCode,
+    whatsappNumber,
+    customerNotes: customerNotes ?? "",
+  };
+}

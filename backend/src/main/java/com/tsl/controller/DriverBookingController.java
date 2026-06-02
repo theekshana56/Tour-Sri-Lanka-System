@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tsl.dto.response.BookingResponse;
+import com.tsl.dto.response.DriverBookingResponse;
 import com.tsl.service.BookingService;
 import com.tsl.util.SecurityUtils;
 
@@ -27,7 +27,7 @@ public class DriverBookingController {
     private final BookingService bookingService;
 
     @GetMapping
-    public Page<BookingResponse> getMyBookings(
+    public Page<DriverBookingResponse> getMyBookings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             Authentication authentication) {
@@ -35,17 +35,14 @@ public class DriverBookingController {
     }
 
     @GetMapping("/today")
-    public List<BookingResponse> getTodayBookings(Authentication authentication) {
+    public List<DriverBookingResponse> getTodayBookings(Authentication authentication) {
         return bookingService.getDriverBookingsToday(authentication.getName());
     }
 
     @PutMapping("/{id}/complete")
-    public BookingResponse complete(
+    public DriverBookingResponse complete(
             @PathVariable String id,
             Authentication authentication) {
-        return bookingService.completeBooking(
-                id,
-                authentication.getName(),
-                SecurityUtils.extractRole(authentication));
+        return bookingService.completeDriverBooking(id, authentication.getName());
     }
 }

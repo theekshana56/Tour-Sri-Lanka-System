@@ -1,6 +1,7 @@
 package com.tsl.dto.request;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.tsl.model.VehicleType;
@@ -45,6 +46,9 @@ public class CreateBookingRequest {
 
     @NotBlank
     private String dropLocation;
+
+    @NotNull
+    private LocalTime pickupTime;
 
     @NotNull
     private LocalDate startDate;

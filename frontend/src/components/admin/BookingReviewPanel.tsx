@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sheet";
 import { adminApi, availabilityApi } from "@/lib/api";
 import { getApiErrorMessage } from "@/lib/api-errors";
+import { formatPickupTime } from "@/lib/booking-utils";
 import type { AdminBooking } from "@/types";
 
 interface BookingReviewPanelProps {
@@ -166,6 +167,10 @@ export function BookingReviewPanel({
                 value={`${booking.fromDistrict} → ${booking.toDistrict}`}
               />
               <DetailRow label="Pickup" value={booking.pickupLocation} />
+              <DetailRow
+                label="Pickup time"
+                value={formatPickupTime(booking.pickupTime)}
+              />
               <DetailRow label="Drop-off" value={booking.dropLocation} />
               <DetailRow
                 label="Dates"

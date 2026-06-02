@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { formatPickupTime } from "@/lib/booking-utils";
 import type { CustomerBooking } from "@/types";
 
 interface BookingDetailModalProps {
@@ -41,6 +42,7 @@ export function BookingDetailModal({
           </div>
           <Row label="Route" value={`${booking.fromDistrict} → ${booking.toDistrict}`} />
           <Row label="Pickup" value={booking.pickupLocation} />
+          <Row label="Pickup time" value={formatPickupTime(booking.pickupTime)} />
           <Row label="Drop-off" value={booking.dropLocation} />
           <Row
             label="Dates"

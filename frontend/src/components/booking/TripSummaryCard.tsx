@@ -5,6 +5,7 @@ import { format, parseISO } from "date-fns";
 import { useVehicles } from "@/hooks/useAvailability";
 import { getSelectedVehicleCapacity } from "@/components/booking/VehicleSelector";
 import type { Place, PriceQuote, TripConfig } from "@/types";
+import { formatPickupTime } from "@/lib/booking-utils";
 import { getPlaceImageUrl } from "@/lib/place-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -70,6 +71,7 @@ export function TripSummaryCard({
             label="Dates"
             value={`${format(start, "MMM d")} – ${format(end, "MMM d, yyyy")} (${days} days)`}
           />
+          <Row label="Pickup time" value={formatPickupTime(tripConfig.pickupTime)} />
           <Row
             label="Vehicle"
             value={

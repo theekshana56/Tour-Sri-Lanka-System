@@ -6,6 +6,7 @@ import { format, parseISO } from "date-fns";
 import { BookingStatusProgress } from "@/components/booking/BookingStatusProgress";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { useBookingTrack } from "@/hooks/useBookingTrack";
+import { formatPickupTime } from "@/lib/booking-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TrackPageProps {
@@ -91,6 +92,12 @@ export default function TrackBookingPage({ params }: TrackPageProps) {
               label="Dates"
               value={`${format(start, "MMM d, yyyy")} – ${format(end, "MMM d, yyyy")} (${booking.numberOfDays} days)`}
             />
+            {booking.pickupTime && (
+              <DetailRow
+                label="Pickup time"
+                value={formatPickupTime(booking.pickupTime)}
+              />
+            )}
             <DetailRow
               label="Route"
               value={`${booking.fromDistrict} → ${booking.toDistrict}`}

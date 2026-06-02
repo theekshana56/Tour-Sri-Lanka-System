@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
@@ -13,30 +14,49 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { bookingApi } from "@/lib/api";
+import { authApi, bookingApi } from "@/lib/api";
 import {
   bookingFormSchema,
   COUNTRY_CODES,
   combineWhatsapp,
+  getBookingContactDefaultsFromUser,
   type BookingFormValues,
 } from "@/lib/schemas/bookingForm";
 import { useTripStore } from "@/store/tripStore";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
 
+const BOOKING_LOGIN_REDIRECT = "/plan/booking";
+
 export default function BookingPage() {
   const router = useRouter();
   const { selectedPlaces, tripConfig, priceQuote, clearTrip } = useTripStore();
-  const { user } = useAuthStore();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const storedUser = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   const [submitting, setSubmitting] = useState(false);
+  const prefillApplied = useRef(false);
+
+  const { data: profileUser, isLoading: profileLoading } = useQuery({
+    queryKey: ["auth", "me", "booking-prefill"],
+    queryFn: async () => {
+      const { data } = await authApi.me();
+      return data;
+    },
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+    retry: false,
+  });
+
+  const accountUser = profileUser ?? storedUser;
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
     defaultValues: {
-      customerName: user?.fullName ?? "",
-      customerEmail: user?.email ?? "",
+      customerName: "",
+      customerEmail: "",
       countryCode: "+94",
-      whatsappNumber: user?.phone?.replace(/^\+\d+/, "") ?? "",
+      whatsappNumber: "",
       customerNotes: tripConfig?.customerNotes ?? "",
       agreeToTerms: false,
     },
@@ -46,11 +66,41 @@ export default function BookingPage() {
     register,
     handleSubmit,
     watch,
+    reset,
+    getValues,
     formState: { errors },
   } = form;
 
   const notes = watch("customerNotes") ?? "";
   const notesLength = notes.length;
+
+  useEffect(() => {
+    if (!isAuthenticated || prefillApplied.current || profileLoading) return;
+    if (!accountUser) return;
+
+    const contact = getBookingContactDefaultsFromUser(
+      accountUser,
+      tripConfig?.customerNotes
+    );
+    reset({
+      ...contact,
+      agreeToTerms: getValues("agreeToTerms"),
+    });
+    prefillApplied.current = true;
+  }, [
+    isAuthenticated,
+    accountUser,
+    profileLoading,
+    reset,
+    getValues,
+    tripConfig?.customerNotes,
+  ]);
+
+  useEffect(() => {
+    if (profileUser) {
+      setUser(profileUser);
+    }
+  }, [profileUser, setUser]);
 
   useEffect(() => {
     if (!tripConfig) {
@@ -74,6 +124,7 @@ export default function BookingPage() {
         toDistrict: tripConfig.toDistrict,
         pickupLocation: tripConfig.pickupLocation,
         dropLocation: tripConfig.dropLocation,
+        pickupTime: tripConfig.pickupTime,
         startDate: tripConfig.startDate,
         endDate: tripConfig.endDate,
         passengerCount: tripConfig.passengerCount,
@@ -97,6 +148,9 @@ export default function BookingPage() {
     return null;
   }
 
+  const showProfileLoading = isAuthenticated && profileLoading && !storedUser;
+  const firstName = accountUser?.fullName?.split(/\s+/)[0];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-tsl-sand/30 to-white py-8">
       <div className="mx-auto max-w-6xl px-4">
@@ -111,9 +165,44 @@ export default function BookingPage() {
               We&apos;ll send confirmation to your email and WhatsApp.
             </p>
 
+            {showProfileLoading ? (
+              <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+                <LoadingSpinner size="sm" />
+                Loading your account details…
+              </div>
+            ) : isAuthenticated && accountUser ? (
+              <div
+                className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50/80 p-4 text-sm"
+                role="status"
+              >
+                <p className="font-medium text-emerald-900">
+                  Welcome back{firstName ? `, ${firstName}` : ""}!
+                </p>
+                <p className="mt-1 text-emerald-800">
+                  Your name, email, and WhatsApp are filled in from your account.
+                  Edit any field if you need different contact details for this trip.
+                </p>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-muted-foreground">
+                Already registered?{" "}
+                <Link
+                  href={`/login?redirect=${encodeURIComponent(BOOKING_LOGIN_REDIRECT)}`}
+                  className="font-medium text-tsl-teal hover:underline"
+                >
+                  Sign in
+                </Link>{" "}
+                to fill your details automatically.
+              </p>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
               <Field label="Full Name" error={errors.customerName?.message}>
-                <Input {...register("customerName")} autoComplete="name" />
+                <Input
+                  {...register("customerName")}
+                  autoComplete="name"
+                  placeholder="Your full name"
+                />
               </Field>
 
               <Field label="Email Address" error={errors.customerEmail?.message}>
@@ -121,6 +210,7 @@ export default function BookingPage() {
                   {...register("customerEmail")}
                   type="email"
                   autoComplete="email"
+                  placeholder="you@example.com"
                 />
               </Field>
 
@@ -129,6 +219,7 @@ export default function BookingPage() {
                   <select
                     {...register("countryCode")}
                     className="h-10 w-32 shrink-0 rounded-md border bg-background px-2 text-sm"
+                    aria-label="Country code"
                   >
                     {COUNTRY_CODES.map((c) => (
                       <option key={c.code} value={c.code}>
@@ -140,6 +231,8 @@ export default function BookingPage() {
                     {...register("whatsappNumber")}
                     placeholder="771234567"
                     className="flex-1"
+                    autoComplete="tel-national"
+                    inputMode="numeric"
                   />
                 </div>
               </Field>
@@ -176,7 +269,7 @@ export default function BookingPage() {
 
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || showProfileLoading}
                 className={cn(
                   "h-12 w-full text-base",
                   submitting

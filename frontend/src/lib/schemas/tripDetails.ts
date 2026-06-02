@@ -5,6 +5,10 @@ export const tripDetailsSchema = z
     fromDistrict: z.string().min(1, "Select pickup district"),
     toDistrict: z.string().min(1, "Select main destination district"),
     pickupLocation: z.string().min(5, "Enter your pickup address"),
+    pickupTime: z
+      .string()
+      .min(1, "Select pickup time")
+      .regex(/^\d{2}:\d{2}(:\d{2})?$/, "Enter a valid pickup time"),
     dropLocation: z.string().min(5, "Enter drop-off address"),
     passengerCount: z.number().min(1).max(20),
     vehicleType: z.string().min(1, "Select a vehicle"),

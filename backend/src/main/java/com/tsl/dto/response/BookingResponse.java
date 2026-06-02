@@ -3,6 +3,7 @@ package com.tsl.dto.response;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.tsl.model.Booking;
@@ -31,6 +32,7 @@ public class BookingResponse {
     private String toDistrict;
     private String pickupLocation;
     private String dropLocation;
+    private LocalTime pickupTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private int numberOfDays;
@@ -69,6 +71,7 @@ public class BookingResponse {
                 .toDistrict(booking.getToDistrict())
                 .pickupLocation(booking.getPickupLocation())
                 .dropLocation(booking.getDropLocation())
+                .pickupTime(booking.getPickupTime())
                 .startDate(booking.getStartDate())
                 .endDate(booking.getEndDate())
                 .numberOfDays(booking.getNumberOfDays())

@@ -2,6 +2,7 @@ package com.tsl.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -9,61 +10,67 @@ import com.tsl.model.Booking;
 import com.tsl.model.BookingStatus;
 import com.tsl.model.VehicleType;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
+/**
+ * Driver-facing booking view — excludes customer email and WhatsApp so trips stay on-platform.
+ */
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PublicBookingTrackResponse {
+public class DriverBookingResponse {
+    private String id;
     private String bookingNumber;
-    private BookingStatus status;
     private String customerName;
-    private String customerEmail;
-    private String customerWhatsapp;
+    private List<String> selectedPlaceIds;
     private List<String> selectedPlaceNames;
     private String fromDistrict;
     private String toDistrict;
+    private String pickupLocation;
+    private String dropLocation;
     private LocalTime pickupTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private int numberOfDays;
     private int passengerCount;
     private VehicleType vehicleType;
-    private String assignedDriverName;
+    private String vehicleId;
     private String vehicleName;
+    private String assignedDriverId;
+    private String assignedDriverName;
+    private BookingStatus status;
     private BigDecimal totalPriceLKR;
-    private BigDecimal totalPriceForeign;
-    private String preferredCurrency;
-    private String pdfUrl;
-    private String rejectionReason;
+    private String customerNotes;
+    private LocalDateTime createdAt;
+    /** Secure in-app chat for this trip */
+    private String conversationId;
 
-    public static PublicBookingTrackResponse from(Booking booking) {
-        return PublicBookingTrackResponse.builder()
+    public static DriverBookingResponse from(Booking booking, String conversationId) {
+        return DriverBookingResponse.builder()
+                .id(booking.getId())
                 .bookingNumber(booking.getBookingNumber())
-                .status(booking.getStatus())
                 .customerName(booking.getCustomerName())
-                .customerEmail(booking.getCustomerEmail())
-                .customerWhatsapp(booking.getCustomerWhatsapp())
+                .selectedPlaceIds(booking.getSelectedPlaceIds())
                 .selectedPlaceNames(booking.getSelectedPlaceNames())
                 .fromDistrict(booking.getFromDistrict())
                 .toDistrict(booking.getToDistrict())
+                .pickupLocation(booking.getPickupLocation())
+                .dropLocation(booking.getDropLocation())
                 .pickupTime(booking.getPickupTime())
                 .startDate(booking.getStartDate())
                 .endDate(booking.getEndDate())
                 .numberOfDays(booking.getNumberOfDays())
                 .passengerCount(booking.getPassengerCount())
                 .vehicleType(booking.getVehicleType())
-                .assignedDriverName(booking.getAssignedDriverName())
+                .vehicleId(booking.getVehicleId())
                 .vehicleName(booking.getVehicleName())
+                .assignedDriverId(booking.getAssignedDriverId())
+                .assignedDriverName(booking.getAssignedDriverName())
+                .status(booking.getStatus())
                 .totalPriceLKR(booking.getTotalPriceLKR())
-                .totalPriceForeign(booking.getTotalPriceForeign())
-                .preferredCurrency(booking.getPreferredCurrency())
-                .pdfUrl(booking.getPdfUrl())
-                .rejectionReason(booking.getRejectionReason())
+                .customerNotes(booking.getCustomerNotes())
+                .createdAt(booking.getCreatedAt())
+                .conversationId(conversationId)
                 .build();
     }
 }

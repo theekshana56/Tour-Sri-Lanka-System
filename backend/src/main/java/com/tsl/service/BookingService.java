@@ -18,6 +18,7 @@ import com.tsl.dto.request.ApproveBookingRequest;
 import com.tsl.dto.request.CreateBookingRequest;
 import com.tsl.dto.request.RejectBookingRequest;
 import com.tsl.dto.response.BookingResponse;
+import com.tsl.dto.response.DriverBookingResponse;
 import com.tsl.dto.response.PriceQuoteResponse;
 import com.tsl.dto.response.PublicBookingTrackResponse;
 import com.tsl.dto.response.RangeAvailabilityResponse;
@@ -51,6 +52,7 @@ public class BookingService {
     private final AvailabilityService availabilityService;
     private final PricingService pricingService;
     private final NotificationService notificationService;
+    private final TripCommunicationService tripCommunicationService;
 
     public BookingResponse createBooking(CreateBookingRequest request, String customerId) {
         validateCreateRequest(request);
@@ -85,6 +87,7 @@ public class BookingService {
                 .toDistrict(request.getToDistrict())
                 .pickupLocation(request.getPickupLocation())
                 .dropLocation(request.getDropLocation())
+                .pickupTime(request.getPickupTime())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .numberOfDays(numberOfDays)
@@ -131,6 +134,7 @@ public class BookingService {
         booking.setReviewedAt(LocalDateTime.now());
 
         Booking saved = bookingRepository.save(booking);
+        tripCommunicationService.ensureConversationForBooking(saved);
         notificationService.notifyBookingApproved(saved);
         return BookingResponse.from(saved);
     }
@@ -203,6 +207,11 @@ public class BookingService {
         return BookingResponse.from(bookingRepository.save(booking));
     }
 
+    public DriverBookingResponse completeDriverBooking(String bookingId, String driverId) {
+        completeBooking(bookingId, driverId, "DRIVER");
+        return toDriverResponse(requireBooking(bookingId));
+    }
+
     public PublicBookingTrackResponse getByBookingNumber(String bookingNumber) {
         Booking booking = bookingRepository.findByBookingNumber(bookingNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
@@ -253,19 +262,24 @@ public class BookingService {
         return bookings.map(BookingResponse::from);
     }
 
-    public Page<BookingResponse> getDriverBookings(String driverId, int page, int size) {
+    public Page<DriverBookingResponse> getDriverBookings(String driverId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "startDate"));
-        return bookingRepository.findByAssignedDriverId(driverId, pageable).map(BookingResponse::from);
+        return bookingRepository.findByAssignedDriverId(driverId, pageable).map(this::toDriverResponse);
     }
 
-    public List<BookingResponse> getDriverBookingsToday(String driverId) {
+    public List<DriverBookingResponse> getDriverBookingsToday(String driverId) {
         LocalDate today = LocalDate.now();
         return bookingRepository
                 .findByAssignedDriverIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                         driverId, BookingStatus.APPROVED, today, today)
                 .stream()
-                .map(BookingResponse::from)
+                .map(this::toDriverResponse)
                 .collect(Collectors.toList());
+    }
+
+    private DriverBookingResponse toDriverResponse(Booking booking) {
+        String conversationId = tripCommunicationService.findConversationIdForBooking(booking.getId());
+        return DriverBookingResponse.from(booking, conversationId);
     }
 
     private void validateCreateRequest(CreateBookingRequest request) {

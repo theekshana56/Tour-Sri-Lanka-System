@@ -8,6 +8,7 @@ import {
   History,
   ClipboardList,
   MapPin,
+  MessageSquare,
   Percent,
   UserCog,
   Users,
@@ -37,6 +38,7 @@ export const ADMIN_NAV: DashboardNavItem[] = [
   { href: "/admin/vehicles", label: "Vehicles Management", icon: Car },
   { href: "/admin/users", label: "Users Management", icon: Users },
   { href: "/admin/drivers", label: "Drivers Management", icon: UserCog },
+  { href: "/admin/messages", label: "Trip Messages", icon: MessageSquare },
 ];
 
 export const MANAGER_NAV: DashboardNavItem[] = [
@@ -49,6 +51,7 @@ export const MANAGER_NAV: DashboardNavItem[] = [
   },
   { href: "/manager/bookings", label: "All Bookings", icon: Calendar },
   { href: "/manager/actions", label: "My Actions Log", icon: History },
+  { href: "/admin/messages", label: "Trip Messages", icon: MessageSquare },
 ];
 
 export const FINANCE_NAV: DashboardNavItem[] = [

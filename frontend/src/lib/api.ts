@@ -1,6 +1,11 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import type {
   AdminBooking,
+  CallSignal,
+  DriverTripBooking,
+  TripCallSession,
+  TripConversation,
+  TripMessage,
   AdminCreateUserPayload,
   AdminDashboardData,
   ManagerDashboardData,
@@ -249,9 +254,67 @@ export const managerApi = {
 };
 
 export const driverApi = {
-  getAssignments: () => api.get("/driver/assignments"),
-  updateAvailability: (data: unknown) =>
-    api.put("/driver/availability", data),
+  getTodayBookings: () => api.get<DriverTripBooking[]>("/driver/bookings/today"),
+  getMyBookings: (params?: { page?: number; size?: number }) =>
+    api.get<PageResponse<DriverTripBooking>>("/driver/bookings", { params }),
+  completeBooking: (id: string) =>
+    api.put<DriverTripBooking>(`/driver/bookings/${id}/complete`),
+  getBlockedDates: () => api.get<DriverAvailability>("/driver/availability"),
+  blockDate: (date: string) =>
+    api.post<DriverAvailability>("/driver/availability/block", { date }),
+  unblockDate: (date: string) =>
+    api.delete<DriverAvailability>("/driver/availability/unblock", {
+      params: { date },
+    }),
+};
+
+export const communicationApi = {
+  listConversations: () => api.get<TripConversation[]>("/communications/conversations"),
+  getByBooking: (bookingId: string) =>
+    api.get<TripConversation>(`/communications/conversations/by-booking/${bookingId}`),
+  getConversation: (id: string) =>
+    api.get<TripConversation>(`/communications/conversations/${id}`),
+  getMessages: (conversationId: string, since?: string) =>
+    api.get<TripMessage[]>(`/communications/conversations/${conversationId}/messages`, {
+      params: since ? { since } : undefined,
+    }),
+  sendMessage: (conversationId: string, body: string) =>
+    api.post<TripMessage>(`/communications/conversations/${conversationId}/messages`, {
+      body,
+    }),
+  initiateCall: (conversationId: string) =>
+    api.post<TripCallSession>(`/communications/conversations/${conversationId}/calls`),
+  getActiveCall: async (conversationId: string) => {
+    const res = await api.get<TripCallSession>(
+      `/communications/conversations/${conversationId}/calls/active`,
+      { validateStatus: (status) => status === 200 || status === 204 }
+    );
+    return { data: res.status === 200 ? res.data : null };
+  },
+  acceptCall: (callId: string) => api.put<TripCallSession>(`/communications/calls/${callId}/accept`),
+  declineCall: (callId: string) =>
+    api.put<TripCallSession>(`/communications/calls/${callId}/decline`),
+  endCall: (callId: string) => api.put<TripCallSession>(`/communications/calls/${callId}/end`),
+  postSignal: (callId: string, signalType: string, payload: string) =>
+    api.post<CallSignal>(`/communications/calls/${callId}/signals`, {
+      signalType,
+      payload,
+    }),
+  getSignals: (callId: string, after?: string) =>
+    api.get<CallSignal[]>(`/communications/calls/${callId}/signals`, {
+      params: after ? { after } : undefined,
+    }),
+};
+
+export const adminCommunicationApi = {
+  listConversations: () =>
+    api.get<TripConversation[]>("/admin/communications/conversations"),
+  getMessages: (conversationId: string) =>
+    api.get<TripMessage[]>(`/admin/communications/conversations/${conversationId}/messages`),
+  getCallLogs: (conversationId?: string) =>
+    api.get<TripCallSession[]>("/admin/communications/calls", {
+      params: conversationId ? { conversationId } : undefined,
+    }),
 };
 
 export const financeApi = {
