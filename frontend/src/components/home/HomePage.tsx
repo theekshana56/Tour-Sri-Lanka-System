@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
+import heroBg from "@/assests/bg.jpg";
 import { PlaceCard } from "@/components/places/PlaceCard";
 import { PlaceModal } from "@/components/places/PlaceModal";
 import { PlaceCardSkeleton } from "@/components/common/PlaceCardSkeleton";
@@ -42,9 +44,19 @@ export function HomePage() {
 
   return (
     <>
-      <section className="relative -mt-16 flex min-h-screen flex-col justify-center overflow-hidden pt-16">
-        <div className="hero-mesh absolute inset-0" aria-hidden />
-        <div className="hero-particles absolute inset-0" aria-hidden />
+      <section className="relative flex min-h-[calc(100vh-88px)] flex-col justify-center overflow-hidden">
+        <Image
+          src={heroBg}
+          alt=""
+          fill
+          priority
+          className="object-cover object-left"
+          sizes="100vw"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-tsl-forest/85 via-tsl-forest/60 to-tsl-forest/35"
+          aria-hidden
+        />
 
         <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-4 py-20 text-center">
           <span className="rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-sm text-white backdrop-blur-sm">
@@ -134,7 +146,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-tsl-sand/30 py-16 md:py-20">
+      <section id="how-it-works" className="bg-tsl-sand/30 py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
           <h2 className="text-center font-serif text-3xl font-bold text-tsl-forest">
             How It Works
