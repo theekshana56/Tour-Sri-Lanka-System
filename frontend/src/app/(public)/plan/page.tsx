@@ -142,7 +142,7 @@ export default function PlanPage() {
           background: `
             radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
             radial-gradient(circle at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 40%),
-            linear-gradient(135deg, #1a3c2e 0%, #2d6a4f 100%)
+            linear-gradient(135deg, #09090b 0%, #27272a 100%)
           `,
         }}
       >

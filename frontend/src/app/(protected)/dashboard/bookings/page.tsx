@@ -26,8 +26,8 @@ export default function MyBookingsPage() {
     refetchInterval: 30_000,
   });
 
-  const allBookings = data?.content ?? [];
-  const stats = computeBookingStats(allBookings);
+  const allBookings = useMemo(() => data?.content ?? [], [data?.content]);
+  const stats = useMemo(() => computeBookingStats(allBookings), [allBookings]);
 
   const filtered = useMemo(() => {
     if (activeTab === "ALL") return allBookings;

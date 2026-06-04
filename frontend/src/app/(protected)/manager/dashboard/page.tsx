@@ -25,7 +25,7 @@ export default function ManagerDashboardPage() {
   });
 
   const stats = data?.stats;
-  const pending = data?.pendingQueue ?? [];
+  const pending = useMemo(() => data?.pendingQueue ?? [], [data?.pendingQueue]);
 
   const pendingBadgeCount = pending.length;
 

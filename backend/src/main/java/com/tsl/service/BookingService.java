@@ -123,6 +123,36 @@ public class BookingService {
         User reviewer = userRepository.findById(approvedByUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reviewer not found"));
 
+        if (vehicle.getType() != booking.getVehicleType()) {
+            throw new BadRequestException("Assigned vehicle type (" + vehicle.getType() + 
+                    ") does not match requested vehicle type (" + booking.getVehicleType() + ")");
+        }
+
+        if (vehicle.getCapacity() < booking.getPassengerCount()) {
+            throw new BadRequestException("Assigned vehicle capacity (" + vehicle.getCapacity() +
+                    ") is less than requested passenger count (" + booking.getPassengerCount() + ")");
+        }
+
+        if (driver.getAssignedVehicleId() == null || !driver.getAssignedVehicleId().equals(vehicle.getId())) {
+            throw new BadRequestException("Selected driver is not assigned to the selected vehicle");
+        }
+
+        // Check if driver is already booked on overlapping dates
+        List<Booking> driverOverlaps = bookingRepository
+                .findByAssignedDriverIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                        driver.getId(), BookingStatus.APPROVED, booking.getEndDate(), booking.getStartDate());
+        if (!driverOverlaps.isEmpty()) {
+            throw new BadRequestException("Driver is already booked for another trip during this period");
+        }
+
+        // Check if vehicle is already booked on overlapping dates
+        List<Booking> vehicleOverlaps = bookingRepository
+                .findByVehicleIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                        vehicle.getId(), BookingStatus.APPROVED, booking.getEndDate(), booking.getStartDate());
+        if (!vehicleOverlaps.isEmpty()) {
+            throw new BadRequestException("Vehicle is already booked for another trip during this period");
+        }
+
         booking.setStatus(BookingStatus.APPROVED);
         booking.setVehicleId(vehicle.getId());
         booking.setVehicleName(vehicle.getName());

@@ -18,6 +18,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class FinanceService {
 
     private final BookingRepository bookingRepository;
+    private final MongoTemplate mongoTemplate;
 
     public RevenueSummaryResponse getRevenueSummary(LocalDate from, LocalDate to) {
         LocalDateTime fromDateTime = from.atStartOfDay();
@@ -73,60 +77,40 @@ public class FinanceService {
             LocalDate to,
             int page,
             int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Query query = new Query();
 
-        Page<Booking> bookings = resolveBookingsPage(status, from, to, pageable);
-
-        List<FinanceBookingResponse> content = bookings.getContent().stream()
-                .filter(booking -> matchesVehicleType(booking, vehicleType))
-                .filter(booking -> matchesCurrency(booking, currency))
-                .map(FinanceBookingResponse::from)
-                .toList();
-
-        return new PageImpl<>(content, pageable, bookings.getTotalElements());
-    }
-
-    private Page<Booking> resolveBookingsPage(
-            BookingStatus status,
-            LocalDate from,
-            LocalDate to,
-            Pageable pageable) {
+        if (status != null) {
+            query.addCriteria(Criteria.where("status").is(status));
+        }
+        if (StringUtils.hasText(vehicleType)) {
+            try {
+                VehicleType type = VehicleType.valueOf(vehicleType.trim().toUpperCase());
+                query.addCriteria(Criteria.where("vehicleType").is(type));
+            } catch (IllegalArgumentException ignored) {}
+        }
+        if (StringUtils.hasText(currency)) {
+            query.addCriteria(Criteria.where("preferredCurrency").regex("^" + currency.trim() + "$", "i"));
+        }
         if (from != null && to != null) {
             LocalDateTime fromDateTime = from.atStartOfDay();
             LocalDateTime toDateTime = to.atTime(23, 59, 59);
-            if (status != null) {
-                return bookingRepository.findByStatusInAndCreatedAtBetween(
-                        List.of(status),
-                        fromDateTime,
-                        toDateTime,
-                        pageable);
-            }
-            return bookingRepository.findByCreatedAtBetween(fromDateTime, toDateTime, pageable);
+            query.addCriteria(Criteria.where("createdAt").gte(fromDateTime).lte(toDateTime));
+        } else if (from != null) {
+            query.addCriteria(Criteria.where("createdAt").gte(from.atStartOfDay()));
+        } else if (to != null) {
+            query.addCriteria(Criteria.where("createdAt").lte(to.atTime(23, 59, 59)));
         }
-        if (status != null) {
-            return bookingRepository.findByStatus(status, pageable);
-        }
-        return bookingRepository.findAll(pageable);
-    }
 
-    private boolean matchesVehicleType(Booking booking, String vehicleType) {
-        if (!StringUtils.hasText(vehicleType)) {
-            return true;
-        }
-        try {
-            VehicleType type = VehicleType.valueOf(vehicleType.trim().toUpperCase());
-            return booking.getVehicleType() == type;
-        } catch (IllegalArgumentException ex) {
-            return false;
-        }
-    }
+        long total = mongoTemplate.count(query, Booking.class);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        query.with(pageable);
+        List<Booking> bookings = mongoTemplate.find(query, Booking.class);
 
-    private boolean matchesCurrency(Booking booking, String currency) {
-        if (!StringUtils.hasText(currency)) {
-            return true;
-        }
-        return booking.getPreferredCurrency() != null
-                && booking.getPreferredCurrency().equalsIgnoreCase(currency.trim());
+        List<FinanceBookingResponse> content = bookings.stream()
+                .map(FinanceBookingResponse::from)
+                .toList();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     private List<RevenueSummaryResponse.MonthlyRevenueResponse> buildMonthlyRevenue(List<Booking> bookings) {

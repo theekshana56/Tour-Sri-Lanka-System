@@ -32,6 +32,10 @@ public class EmailService {
     private String mailPassword;
 
     public void sendWelcomeEmail(String to, String fullName, String tempPassword) {
+        if (mailPassword == null || mailPassword.isBlank() || "placeholder".equals(mailPassword)) {
+            log.debug("Skipping welcome email to {} — RESEND_API_KEY not configured", to);
+            return;
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");

@@ -117,9 +117,9 @@ export default function TrackBookingPage({ params }: TrackPageProps) {
         </Card>
 
         {booking.status === "APPROVED" && booking.assignedDriverName && (
-          <Card className="mt-6 border-emerald-200 bg-emerald-50/50">
+          <Card className="mt-6 border-zinc-200 bg-zinc-50/50">
             <CardHeader>
-              <CardTitle className="text-base text-emerald-800">
+              <CardTitle className="text-base text-black">
                 Your driver
               </CardTitle>
             </CardHeader>

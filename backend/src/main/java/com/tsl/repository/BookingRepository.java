@@ -48,6 +48,12 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
             LocalDate end,
             LocalDate start);
 
+    List<Booking> findByVehicleIdAndStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            String vehicleId,
+            BookingStatus status,
+            LocalDate end,
+            LocalDate start);
+
     long countByStatus(BookingStatus status);
 
     long countByCreatedAtBetween(LocalDateTime from, LocalDateTime to);

@@ -69,6 +69,23 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (err: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else if (token) {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -84,19 +101,42 @@ api.interceptors.response.use(
       !originalRequest.url?.includes("/auth/register") &&
       !originalRequest.url?.includes("/auth/refresh")
     ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(api(originalRequest));
+            },
+            reject: (err) => {
+              reject(err);
+            },
+          });
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
+
       try {
         await refreshAccessTokenFn();
         const token = getAccessToken();
         if (token) {
           originalRequest.headers.Authorization = `Bearer ${token}`;
+          processQueue(null, token);
+          isRefreshing = false;
+          return api(originalRequest);
+        } else {
+          throw new Error("Failed to retrieve new access token");
         }
-        return api(originalRequest);
-      } catch {
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        isRefreshing = false;
         await logoutFn();
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
+        return Promise.reject(refreshError);
       }
     }
 

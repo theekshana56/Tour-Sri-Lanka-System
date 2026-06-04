@@ -1,10 +1,10 @@
 import type { PlaceCategory, PriceRange } from "@/types";
 
 const CATEGORY_STYLES: Record<PlaceCategory, string> = {
-  DESTINATION: "bg-emerald-600 text-white",
-  ACCOMMODATION: "bg-blue-600 text-white",
-  RESTAURANT: "bg-amber-600 text-white",
-  ACTIVITY: "bg-purple-600 text-white",
+  DESTINATION: "bg-black text-white border border-black/10",
+  ACCOMMODATION: "bg-zinc-800 text-zinc-100 border border-zinc-700/50",
+  RESTAURANT: "bg-zinc-200 text-zinc-800 border border-zinc-300",
+  ACTIVITY: "bg-zinc-100 text-zinc-700 border border-zinc-200",
 };
 
 const CATEGORY_LABELS: Record<PlaceCategory, string> = {

@@ -228,7 +228,7 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-white">
       <nav className="mx-auto flex h-[88px] max-w-[1400px] items-center justify-between gap-8 px-10 xl:px-14">
-        <Link href="/" className="flex shrink-0 items-center gap-4">
+        <Link href={isAuthenticated && user ? getDashboardForRole(user.role) : "/"} className="flex shrink-0 items-center gap-4">
           <span className="font-serif text-[2rem] font-bold leading-none tracking-tight text-foreground">
             TSL
           </span>

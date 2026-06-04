@@ -1,7 +1,7 @@
 # Load backend/.env and start Spring Boot (Windows PowerShell)
 $envFile = Join-Path $PSScriptRoot ".env"
 if (-not (Test-Path $envFile)) {
-    Write-Error "Missing $envFile — copy .env.example to .env and set MONGODB_URI."
+    Write-Error "Missing $envFile - copy .env.example to .env and set MONGODB_URI."
     exit 1
 }
 

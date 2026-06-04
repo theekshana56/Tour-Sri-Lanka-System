@@ -9,11 +9,11 @@ const FOOTER_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="border-t bg-tsl-forest text-white">
+    <footer className="border-t bg-zinc-950 text-white">
       <div className="mx-auto max-w-7xl px-4 py-12 lg:px-6">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
-            <p className="font-serif text-2xl font-bold">🌿 TSL</p>
+            <p className="font-serif text-2xl font-bold">TSL</p>
             <p className="mt-2 max-w-xs text-sm text-white/80">
               Your trusted partner for unforgettable journeys across the Pearl of
               the Indian Ocean.
@@ -28,7 +28,7 @@ export function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-white/90 transition hover:text-tsl-sand"
+                    className="text-sm text-white/90 transition hover:text-zinc-300"
                   >
                     {link.label}
                   </Link>
@@ -41,7 +41,7 @@ export function Footer() {
               Contact
             </p>
             <p className="mt-4 text-sm text-white/90">
-              <a href="mailto:support@tsl.lk" className="hover:text-tsl-sand">
+              <a href="mailto:support@tsl.lk" className="hover:text-zinc-300">
                 support@tsl.lk
               </a>
             </p>

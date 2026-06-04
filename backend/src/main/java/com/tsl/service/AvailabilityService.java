@@ -248,15 +248,21 @@ public class AvailabilityService {
                 .findByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                         BookingStatus.APPROVED, to, from);
 
-        Map<String, Set<LocalDate>> driverBlockedDates = driverAvailabilityRepository.findAll().stream()
+        List<String> driverIds = drivers.stream().map(User::getId).toList();
+        Map<String, Set<LocalDate>> driverBlockedDates = driverAvailabilityRepository.findByDriverIdIn(driverIds).stream()
                 .collect(Collectors.toMap(
                         DriverAvailability::getDriverId,
-                        da -> new HashSet<>(da.getBlockedDates())));
+                        da -> da.getBlockedDates().stream()
+                                .filter(date -> !date.isBefore(from) && !date.isAfter(to))
+                                .collect(Collectors.toSet())));
 
-        Map<String, Set<LocalDate>> vehicleUnavailableDates = vehicleUnavailabilityRepository.findAll().stream()
+        List<String> vehicleIds = vehicles.stream().map(Vehicle::getId).toList();
+        Map<String, Set<LocalDate>> vehicleUnavailableDates = vehicleUnavailabilityRepository.findByVehicleIdIn(vehicleIds).stream()
                 .collect(Collectors.toMap(
                         VehicleUnavailability::getVehicleId,
-                        vu -> new HashSet<>(vu.getUnavailableDates())));
+                        vu -> vu.getUnavailableDates().stream()
+                                .filter(date -> !date.isBefore(from) && !date.isAfter(to))
+                                .collect(Collectors.toSet())));
 
         Map<String, Map<LocalDate, Boolean>> driverBookedByDate = new HashMap<>();
         Map<String, Map<LocalDate, Boolean>> vehicleBookedByDate = new HashMap<>();

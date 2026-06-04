@@ -61,10 +61,22 @@ const config: Config = {
           ring: "var(--sidebar-ring)",
         },
         tsl: {
-          forest: "#1a3c2e",
-          forestLight: "#2d6a4f",
-          sand: "#f5e6c8",
-          teal: "#0d7377",
+          forest: "#09090b", // zinc-950 / black
+          forestLight: "#27272a", // zinc-800
+          sand: "#f4f4f5", // zinc-100
+          teal: "#000000", // black
+        },
+        emerald: {
+          50: "#fafafa",   // zinc-50
+          100: "#f4f4f5",  // zinc-100
+          200: "#e4e4e7",  // zinc-200
+          300: "#d4d4d8",  // zinc-300
+          400: "#a1a1aa",  // zinc-400
+          500: "#71717a",  // zinc-500
+          600: "#09090b",  // zinc-950 / black
+          700: "#18181b",  // zinc-900
+          800: "#27272a",  // zinc-800
+          900: "#3f3f46",  // zinc-700
         },
       },
       borderRadius: {

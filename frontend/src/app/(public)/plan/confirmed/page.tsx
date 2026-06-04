@@ -33,7 +33,7 @@ function ConfirmedContent() {
       particleCount: 120,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ["#1a3c2e", "#0d7377", "#f5e6c8", "#ffd700"],
+      colors: ["#000000", "#52525b", "#e4e4e7", "#ffd700"],
     });
   }, []);
 
@@ -98,7 +98,7 @@ function ConfirmedContent() {
     <div className="mx-auto max-w-2xl px-4 py-12">
       <SuccessCheckmark />
 
-      <h1 className="text-center font-serif text-2xl font-bold text-emerald-700 md:text-3xl">
+      <h1 className="text-center font-serif text-2xl font-bold text-black md:text-3xl">
         Booking Received! 🎉
       </h1>
       <p className="mt-2 text-center text-muted-foreground">
@@ -118,7 +118,7 @@ function ConfirmedContent() {
         <p className="mt-1 text-xs text-muted-foreground">Click to copy</p>
       </div>
 
-      <div className="mt-6 space-y-2 rounded-xl border bg-tsl-sand/30 p-6 text-sm">
+      <div className="mt-6 space-y-2 rounded-xl border bg-zinc-50 p-6 text-sm">
         <SummaryRow label="Name" value={booking.customerName} />
         {booking.customerEmail && (
           <SummaryRow label="Email" value={booking.customerEmail} />

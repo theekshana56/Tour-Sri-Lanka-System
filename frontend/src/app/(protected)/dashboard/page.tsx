@@ -31,25 +31,25 @@ export default function DashboardPage() {
           label="Total Bookings"
           value={stats.total}
           icon={Calendar}
-          className="border-blue-200 bg-blue-50 text-blue-900"
+          className="border-zinc-200 bg-zinc-50 text-zinc-900"
         />
         <StatCard
-          label="Pending"
+          label="Pending Approval"
           value={stats.pending}
           icon={Clock}
-          className="border-amber-200 bg-amber-50 text-amber-900"
+          className="border-zinc-200 bg-zinc-50 text-zinc-900"
         />
         <StatCard
-          label="Confirmed"
+          label="Confirmed Trips"
           value={stats.confirmed}
           icon={CheckCircle}
-          className="border-emerald-200 bg-emerald-50 text-emerald-900"
+          className="border-black bg-black text-white"
         />
         <StatCard
           label="Completed"
           value={stats.completed}
           icon={Archive}
-          className="border-gray-200 bg-gray-50 text-gray-800"
+          className="border-zinc-200 bg-zinc-50 text-zinc-500"
         />
       </div>
 
@@ -112,17 +112,17 @@ export default function DashboardPage() {
         )}
       </section>
 
-      <Card className="border-0 bg-emerald-600 text-white">
+      <Card className="border-0 bg-black text-white">
         <CardContent className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold">Ready for your next adventure?</h3>
-            <p className="mt-1 text-sm text-emerald-100">
+            <p className="mt-1 text-sm text-zinc-400">
               Explore destinations and build your perfect itinerary.
             </p>
           </div>
           <Link
             href="/plan"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-white px-5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-white px-5 text-sm font-semibold text-black hover:bg-zinc-200"
           >
             Plan a New Trip →
           </Link>

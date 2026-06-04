@@ -273,8 +273,8 @@ export default function BookingPage() {
                 className={cn(
                   "h-12 w-full text-base",
                   submitting
-                    ? "bg-emerald-600/80"
-                    : "bg-emerald-600 hover:bg-emerald-700"
+                    ? "bg-black/80 text-white"
+                    : "bg-black text-white hover:bg-zinc-900"
                 )}
               >
                 {submitting ? (

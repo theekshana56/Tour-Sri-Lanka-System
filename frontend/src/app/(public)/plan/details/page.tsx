@@ -450,7 +450,7 @@ export default function TripDetailsPage() {
                 className={cn(
                   "mt-6 h-12 w-full text-base",
                   canContinue
-                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    ? "bg-black text-white hover:bg-zinc-900"
                     : "bg-muted text-muted-foreground"
                 )}
               >

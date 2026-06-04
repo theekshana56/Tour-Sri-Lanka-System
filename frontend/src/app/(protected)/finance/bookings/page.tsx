@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { format, parseISO, isWithinInterval } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -57,15 +57,8 @@ export default function FinanceBookingsPage() {
   });
 
   const filtered = useMemo(() => {
-    const rows = data?.content ?? [];
-    if (!dateFrom && !dateTo) return rows;
-    return rows.filter((b) => {
-      const start = parseISO(b.startDate);
-      const from = dateFrom ? parseISO(dateFrom) : start;
-      const to = dateTo ? parseISO(dateTo) : start;
-      return isWithinInterval(start, { start: from, end: to });
-    });
-  }, [data?.content, dateFrom, dateTo]);
+    return data?.content ?? [];
+  }, [data?.content]);
 
   const totalPages = data?.totalPages ?? 0;
 

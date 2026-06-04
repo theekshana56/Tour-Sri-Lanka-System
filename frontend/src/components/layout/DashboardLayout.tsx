@@ -121,7 +121,7 @@ export function DashboardLayout({
   const sidebarContent = (
     <>
       <div className="border-b border-tsl-forest/10 px-5 py-5">
-        <Link href="/" className="font-serif text-xl font-bold text-tsl-forest">
+        <Link href={user ? getDashboardForRole(user.role) : "/"} className="font-serif text-xl font-bold text-tsl-forest">
           Tour Sri Lanka
         </Link>
         <p className="mt-0.5 text-xs text-muted-foreground">{config.portalLabel}</p>
